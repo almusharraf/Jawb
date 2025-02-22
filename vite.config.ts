@@ -10,11 +10,13 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
-    host: true
+    port: 3000,
+    host: true,
+    strictPort: true
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
       external: []
