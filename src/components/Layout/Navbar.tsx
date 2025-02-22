@@ -59,7 +59,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link 
-                  to="/login" 
+                  to="/auth" 
                   className="text-primary-700 hover:text-primary-800 font-medium transition-colors"
                 >
                   تسجيل الدخول
