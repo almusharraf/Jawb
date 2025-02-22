@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'apis',
+    'game',
     'corsheaders',
     'accounts',
 ]
@@ -59,6 +59,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     # add more origins as needed
 ]
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 ROOT_URLCONF = 'config.urls'
