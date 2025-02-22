@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { saudiQuestions } from '../data/saudiQuestions';
+import toast from 'react-hot-toast';
 
 const categories = [
   {
@@ -189,6 +191,11 @@ const CategorySelect = () => {
       setSelectedCategories(selectedCategories.filter(c => c !== id));
     } else if (selectedCategories.length < 6) {
       setSelectedCategories([...selectedCategories, id]);
+      if (selectedCategories.length === 5) {
+        toast.success('تم اختيار جميع الفئات! 🎮');
+      }
+    } else {
+      toast.error('لا يمكن اختيار أكثر من 6 فئات');
     }
   };
 
@@ -199,7 +206,7 @@ const CategorySelect = () => {
         gameData: {
           selectedCategories,
           teams: state?.teams || [],
-          categories: categories.filter(c => selectedCategories.includes(c.id))
+          categories: saudiQuestions.categories.filter(c => selectedCategories.includes(c.id))
         }
       }
     });

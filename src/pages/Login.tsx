@@ -1,16 +1,35 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add actual authentication logic here
-    navigate('/game-setup');
+    try {
+      // For demo, we'll just check if email/password are not empty
+      if (!email || !password) {
+        toast.error('الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+        return;
+      }
+
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', email);
+      
+      // Force a storage event to update navbar
+      window.dispatchEvent(new Event('storage'));
+      
+      toast.success('تم تسجيل الدخول بنجاح');
+      navigate('/game-setup', { replace: true });
+    } catch (error) {
+      toast.error('حدث خطأ أثناء تسجيل الدخول');
+      console.error('Login failed:', error);
+    }
   };
 
   return (
@@ -55,6 +74,17 @@ const Login = () => {
             >
               تسجيل الدخول
             </button>
+
+            <div className="text-center mt-4">
+              <Link 
+                to="/forgot-password" 
+                className="text-purple-300 hover:text-purple-200 font-medium flex items-center justify-center gap-2 text-sm"
+              >
+                <span className="border-b border-dashed border-purple-400 pb-1">
+                  نسيت كلمة المرور؟
+                </span>
+              </Link>
+            </div>
 
             <p className="text-white/70 text-center text-sm">
               ليس لديك حساب؟{' '}

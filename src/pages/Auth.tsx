@@ -12,8 +12,10 @@ const Auth = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(location.state?.redirectTo || '/', {
-      state: location.state?.gameData // Pass entire gameData
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('user', JSON.stringify({ email, name }));
+    navigate(location.state?.redirectTo || '/', { 
+      state: location.state?.gameData 
     });
   };
 
