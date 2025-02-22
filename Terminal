@@ -1,0 +1,30 @@
+# If port 5173 is occupied, try a different port
+npm run dev -- --port 3000
+
+# Or check for errors in your application code
+# 1. Look for errors in the browser console (F12)
+# 2. Check for compilation errors in the terminal
+# 3. Try clearing browser cache
+# 4. Ensure you have a root component in main.tsx 
+
+npm install @netlify/cli --save-dev
+npm install --save-dev @tsconfig/react
+npm install react-router-dom @types/react-router-dom lucide-react
+npm install
+npm run build
+
+npm run deploy 
+
+mkdir -p project-root/{.github/workflows,backend,frontend/src,infrastructure,docs} 
+mkdir -p src/pages src/components/Layout
+
+npx storybook@latest init 
+
+# Remove node_modules and package-lock.json
+rm -rf node_modules package-lock.json
+
+# Install dependencies fresh
+npm install
+
+# Start the development server
+npm run dev 
