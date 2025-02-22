@@ -1,6 +1,8 @@
+// src/components/Signup.tsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock } from 'lucide-react';
+import { useSignupUser } from '../services/mutations/auth/useSignupUser';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -9,16 +11,34 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
+  const { mutate: signupMutate, isLoading, error } = useSignupUser();
+
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       alert('كلمة المرور غير متطابقة');
       return;
     }
 
-    // Proceed to game setup
-    navigate('/game-setup');
+    signupMutate(
+      {
+        first_name: firstName,
+        email: email,
+        password: password,
+        confirm_password: confirmPassword,
+      },
+      {
+        onSuccess: (data) => {
+          // On successful signup, navigate to the game setup page
+          navigate('/game-setup');
+        },
+        onError: (err) => {
+          console.error('Signup error:', err);
+          alert('فشل التسجيل. الرجاء المحاولة مرة أخرى.');
+        },
+      }
+    );
   };
 
   return (
@@ -89,9 +109,10 @@ const Signup = () => {
 
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity"
             >
-              ابدأ اللعب
+              {isLoading ? 'جاري التسجيل...' : 'ابدأ اللعب'}
             </button>
 
             <p className="text-white/70 text-center text-sm">
@@ -107,4 +128,4 @@ const Signup = () => {
   );
 };
 
-export default Signup; 
+export default Signup;

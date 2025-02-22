@@ -1,16 +1,36 @@
+// src/components/Login.tsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
+import { useLoginUser } from '../services/mutations/auth/useLoginUser';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  const { mutate: loginMutate, isLoading } = useLoginUser();
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Add actual authentication logic here
-    navigate('/game-setup');
+    
+    // Call the login mutation hook
+    loginMutate(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: () => {
+          // On successful login, navigate to game setup
+          navigate('/game-setup');
+        },
+        onError: (err: any) => {
+          console.error('Login error:', err);
+          alert('فشل تسجيل الدخول. تأكد من صحة بيانات الاعتماد.');
+        },
+      }
+    );
   };
 
   return (
@@ -52,8 +72,9 @@ const Login = () => {
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity"
+              disabled={isLoading}
             >
-              تسجيل الدخول
+              {isLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
             </button>
 
             <p className="text-white/70 text-center text-sm">
@@ -69,4 +90,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
