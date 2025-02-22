@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users, ChevronRight } from 'lucide-react';
+import { getAuthData } from '../services/mutations/auth/storage';  // Import getAuthData
 
 const GameSetup = () => {
   const navigate = useNavigate();
@@ -8,14 +9,16 @@ const GameSetup = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
+    // Check if the user is logged in by checking if access token is available in localStorage
+    const { access } = getAuthData();
+    if (!access) {
+      // If not logged in, redirect to login page
       navigate('/login', { 
         state: { from: '/game-setup' },
         replace: true
       });
     }
-  }, []);
+  }, [navigate]);  // Adding `navigate` as a dependency to avoid React warnings
 
   const addTeam = () => {
     if (teams.length < 4) {
@@ -108,4 +111,4 @@ const GameSetup = () => {
   );
 };
 
-export default GameSetup; 
+export default GameSetup;
