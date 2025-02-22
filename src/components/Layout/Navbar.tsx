@@ -24,16 +24,10 @@ const Navbar = () => {
 
           <div className="flex items-center gap-6">
             <Link 
-              to="/play" 
+              to="/game-setup" 
               className="text-primary-700 hover:text-primary-800 font-medium transition-colors"
             >
               العب
-            </Link>
-            <Link 
-              to="/about" 
-              className="text-primary-700 hover:text-primary-800 font-medium transition-colors"
-            >
-              قصتنا
             </Link>
             <Link 
               to="/contact"

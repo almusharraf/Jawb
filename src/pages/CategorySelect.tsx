@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const categories = [
   {
@@ -71,6 +71,90 @@ const categories = [
     icon: '⚽',
     description: 'البطولات والأندية والمنتخب السعودي',
     difficulty: 'easy'
+  },
+  {
+    id: 'saudi-wildlife',
+    name: 'الحياة البرية',
+    icon: '🐪',
+    description: 'الحيوانات والنباتات في البيئة السعودية',
+    difficulty: 'medium'
+  },
+  {
+    id: 'saudi-economy',
+    name: 'الاقتصاد',
+    icon: '💰',
+    description: 'النفط والصناعات والتنمية الاقتصادية',
+    difficulty: 'hard'
+  },
+  {
+    id: 'saudi-education',
+    name: 'التعليم',
+    icon: '🎓',
+    description: 'النظام التعليمي والجامعات السعودية',
+    difficulty: 'medium'
+  },
+  {
+    id: 'saudi-tech',
+    name: 'التقنية',
+    icon: '💻',
+    description: 'الإنجازات التقنية والرقمية في السعودية',
+    difficulty: 'hard'
+  },
+  {
+    id: 'saudi-art',
+    name: 'الفنون',
+    icon: '🎨',
+    description: 'الفنون التشكيلية والعروض المسرحية',
+    difficulty: 'easy'
+  },
+  {
+    id: 'saudi-architecture',
+    name: 'العمارة',
+    icon: '🏗️',
+    description: 'الطراز المعماري السعودي التقليدي والحديث',
+    difficulty: 'medium'
+  },
+  {
+    id: 'saudi-environment',
+    name: 'البيئة',
+    icon: '🌳',
+    description: 'المحميات الطبيعية وجهود الحفاظ على البيئة',
+    difficulty: 'easy'
+  },
+  {
+    id: 'saudi-innovation',
+    name: 'الابتكار',
+    icon: '🚀',
+    description: 'المبادرات الابتكارية وريادة الأعمال',
+    difficulty: 'hard'
+  },
+  {
+    id: 'saudi-fashion',
+    name: 'الأزياء',
+    icon: '🧥',
+    description: 'الأزياء التقليدية والتطورات الحديثة',
+    difficulty: 'easy'
+  },
+  {
+    id: 'saudi-media',
+    name: 'الإعلام',
+    icon: '🎥',
+    description: 'الصحافة والإنتاج الفني والإعلامي',
+    difficulty: 'medium'
+  },
+  {
+    id: 'saudi-health',
+    name: 'الصحة',
+    icon: '🏥',
+    description: 'النظام الصحي والإنجازات الطبية',
+    difficulty: 'medium'
+  },
+  {
+    id: 'saudi-space',
+    name: 'الفضاء',
+    icon: '🛰️',
+    description: 'برنامج الفضاء السعودي والإنجازات العلمية',
+    difficulty: 'hard'
   }
 ];
 
@@ -97,6 +181,7 @@ const getDifficultyColor = (difficulty: string) => {
 
 const CategorySelect = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const handleCategorySelect = (id: string) => {
@@ -105,6 +190,19 @@ const CategorySelect = () => {
     } else if (selectedCategories.length < 6) {
       setSelectedCategories([...selectedCategories, id]);
     }
+  };
+
+  const handleStartGame = () => {
+    navigate('/auth', {
+      state: {
+        redirectTo: '/game',
+        gameData: {
+          selectedCategories,
+          teams: state?.teams || [],
+          categories: categories.filter(c => selectedCategories.includes(c.id))
+        }
+      }
+    });
   };
 
   return (
@@ -157,7 +255,7 @@ const CategorySelect = () => {
 
         <div className="mt-12 text-center">
           <button
-            onClick={() => navigate('/game')}
+            onClick={handleStartGame}
             disabled={selectedCategories.length !== 6}
             className={`
               px-12 py-4 rounded-xl text-xl font-bold transition-all transform

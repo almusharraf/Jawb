@@ -7,6 +7,9 @@ import CategorySelect from './pages/CategorySelect';
 import Game from './pages/Game';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import Auth from './pages/Auth';
 
 const App = () => {
   return (
@@ -15,11 +18,15 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/play" element={<GameSetup />} />
+          <Route path="/play" element={<Signup />} />
+          <Route path="/game-setup" element={<GameSetup />} />
           <Route path="/category-select" element={<CategorySelect />} />
           <Route path="/game" element={<Game />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/auth" element={<Auth />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Clock, HelpCircle, SkipForward } from 'lucide-react';
 
 interface Question {
@@ -24,6 +24,14 @@ interface TeamState {
 
 const Game = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!location.state) {
+      navigate('/');
+    }
+  }, []);
+
   const [team1, setTeam1] = useState<TeamState>({
     name: location.state?.team1Name || 'الفريق الأول',
     score: 0,
@@ -48,20 +56,59 @@ const Game = () => {
 
   const [currentTeam, setCurrentTeam] = useState<1 | 2>(1);
 
-  const categories = [
-    { id: 'kuwait', name: 'الكويت', icon: '🏰' },
-    { id: 'islamic', name: 'إسلامي', icon: '🕌' },
-    { id: 'sports', name: 'رياضي', icon: '⚽' },
-    { id: 'buildings', name: 'مباني', icon: '🏛️' },
-    { id: 'traditions', name: 'تقاليد', icon: '👔' },
-    { id: 'history', name: 'تاريخ', icon: '📚' }
-  ];
+  // Get categories from state
+  const categories = location.state?.categories || [];
 
-  const questions: Question[][] = categories.map(cat => [
-    { id: `${cat.id}-1`, category: cat.id, points: 200, question: '', answer: '', isAnswered: false },
-    { id: `${cat.id}-2`, category: cat.id, points: 400, question: '', answer: '', isAnswered: false },
-    { id: `${cat.id}-3`, category: cat.id, points: 600, question: '', answer: '', isAnswered: false }
+  const questions: Question[][] = (location.state?.categories || []).map(cat => [
+    {
+      id: `${cat.id}-1`,
+      category: cat.id,
+      points: 100,
+      question: `سؤال 100 نقطة عن ${cat.name}`,
+      answer: "الإجابة الصحيحة",
+      isAnswered: false
+    },
+    {
+      id: `${cat.id}-2`,
+      category: cat.id,
+      points: 300,
+      question: `سؤال 300 نقطة عن ${cat.name}`,
+      answer: "الإجابة الصحيحة",
+      isAnswered: false
+    },
+    {
+      id: `${cat.id}-3`,
+      category: cat.id,
+      points: 500,
+      question: `سؤال 500 نقطة عن ${cat.name}`,
+      answer: "الإجابة الصحيحة",
+      isAnswered: false
+    }
   ]);
+
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+
+  const handleQuestionClick = (question: Question) => {
+    if (!question.isAnswered) {
+      setCurrentQuestion(question);
+    }
+  };
+
+  const handleAnswer = (isCorrect: boolean) => {
+    if (currentQuestion) {
+      const updatedTeams = currentTeam === 1 ? {...team1} : {...team2};
+      updatedTeams.score += isCorrect ? currentQuestion.points : -Math.round(currentQuestion.points/2);
+      
+      currentTeam === 1 ? setTeam1(updatedTeams) : setTeam2(updatedTeams);
+      
+      setQuestions(prev => prev.map(cat => 
+        cat.map(q => q.id === currentQuestion.id ? {...q, isAnswered: true} : q)
+      ));
+      
+      setCurrentQuestion(null);
+      setCurrentTeam(currentTeam === 1 ? 2 : 1);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-primary-900 text-white p-4">
@@ -139,11 +186,12 @@ const Game = () => {
               {questions.map((categoryQuestions, colIndex) => (
                 <button
                   key={`${row}-${colIndex}`}
+                  onClick={() => handleQuestionClick(categoryQuestions[row])}
                   className={`
                     aspect-square rounded-xl text-2xl font-bold
                     ${categoryQuestions[row].isAnswered 
                       ? 'bg-primary-800/20 text-primary-600/50 cursor-not-allowed'
-                      : 'bg-primary-700 hover:bg-primary-600 transition-colors'
+                      : 'bg-primary-700 hover:bg-primary-600 transition-colors cursor-pointer'
                     }
                   `}
                   disabled={categoryQuestions[row].isAnswered}
@@ -155,6 +203,28 @@ const Game = () => {
           ))}
         </div>
       </div>
+
+      {currentQuestion && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-800 to-blue-900 rounded-2xl p-8 max-w-2xl w-full">
+            <h3 className="text-2xl font-bold mb-6 text-white">{currentQuestion.question}</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <button 
+                onClick={() => handleAnswer(true)}
+                className="bg-green-500/20 text-green-400 p-4 rounded-xl hover:bg-green-500/30 text-lg font-medium"
+              >
+                إجابة صحيحة
+              </button>
+              <button
+                onClick={() => handleAnswer(false)}
+                className="bg-red-500/20 text-red-400 p-4 rounded-xl hover:bg-red-500/30 text-lg font-medium"
+              >
+                إجابة خاطئة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

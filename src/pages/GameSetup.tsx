@@ -1,104 +1,101 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Users, ChevronRight } from 'lucide-react';
 
 const GameSetup = () => {
   const navigate = useNavigate();
-  const [gameName, setGameName] = useState('');
-  const [team1Name, setTeam1Name] = useState('');
-  const [team2Name, setTeam2Name] = useState('');
-  const [team1Players, setTeam1Players] = useState(1);
-  const [team2Players, setTeam2Players] = useState(1);
+  const [teams, setTeams] = useState(['', '']);
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const addTeam = () => {
+    if (teams.length < 4) {
+      setTeams([...teams, '']);
+    }
+  };
+
+  const updateTeam = (index: number, value: string) => {
+    const newTeams = [...teams];
+    newTeams[index] = value;
+    setTeams(newTeams);
+  };
+
+  const handleContinue = () => {
+    navigate('/category-select', { 
+      state: { 
+        teams: teams.filter(t => t.trim()) 
+      } 
+    });
+  };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-primary-700 relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -right-24 -top-24 w-96 h-96 bg-primary-500 rounded-full opacity-20 blur-3xl" />
-        <div className="absolute -left-24 -bottom-24 w-96 h-96 bg-primary-800 rounded-full opacity-20 blur-3xl" />
-      </div>
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center gap-4 mb-12">
+          {[1, 2, 3].map((step) => (
+            <div key={step} className={`w-3 h-3 rounded-full ${currentStep === step ? 'bg-purple-400' : 'bg-white/20'}`} />
+          ))}
+        </div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center text-white mb-12">
-            <h2 className="text-5xl font-bold mb-4">حدد معلومات الفرق</h2>
-            <p className="text-lg opacity-80">أدخل أسماء الفرق وعدد اللاعبين</p>
+        <div className="bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <h2 className="text-2xl font-bold text-white mb-6">إعداد المجموعات</h2>
+          
+          <div className="space-y-4">
+            {teams.map((team, index) => (
+              <div key={index} className="group flex items-center bg-white/5 rounded-xl p-3 border border-white/10 hover:border-purple-400/30 transition-all">
+                <span className="text-white/60 mr-3">#{index + 1}</span>
+                <input
+                  type="text"
+                  className="w-full bg-transparent text-white placeholder-white/40 outline-none"
+                  placeholder={`اسم المجموعة ${index + 1}`}
+                  value={team}
+                  onChange={(e) => updateTeam(index, e.target.value)}
+                />
+                {teams.length > 2 && (
+                  <button 
+                    onClick={() => setTeams(teams.filter((_, i) => i !== index))}
+                    className="text-white/40 hover:text-red-400 ml-2"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl">
-            <div className="mb-8">
-              <label className="block text-white/90 mb-2 text-lg">اسم اللعبة</label>
-              <input
-                type="text"
-                className="w-full bg-white/5 border-2 border-white/20 rounded-xl p-4 text-white placeholder-white/40 focus:border-white/40 transition-colors outline-none"
-                placeholder="أدخل اسم اللعبة"
-                value={gameName}
-                onChange={(e) => setGameName(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Team sections with enhanced styling */}
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-white mb-6">الفريق الأول</h3>
-                <input
-                  type="text"
-                  className="w-full bg-white/5 border-2 border-white/20 rounded-xl p-4 text-white placeholder-white/40 focus:border-white/40 transition-colors outline-none"
-                  placeholder="اسم الفريق"
-                  value={team1Name}
-                  onChange={(e) => setTeam1Name(e.target.value)}
-                />
-                <div className="flex items-center justify-between bg-white/5 rounded-xl p-2">
-                  <button 
-                    onClick={() => setTeam1Players(Math.max(1, team1Players - 1))}
-                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                  >
-                    <Minus className="w-6 h-6 text-white" />
-                  </button>
-                  <span className="text-2xl font-bold text-white">{team1Players}</span>
-                  <button 
-                    onClick={() => setTeam1Players(team1Players + 1)}
-                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                  >
-                    <Plus className="w-6 h-6 text-white" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Similar styling for Team 2 */}
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-white mb-6">الفريق الثاني</h3>
-                <input
-                  type="text"
-                  className="w-full bg-white/5 border-2 border-white/20 rounded-xl p-4 text-white placeholder-white/40 focus:border-white/40 transition-colors outline-none"
-                  placeholder="اسم الفريق"
-                  value={team2Name}
-                  onChange={(e) => setTeam2Name(e.target.value)}
-                />
-                <div className="flex items-center justify-between bg-white/5 rounded-xl p-2">
-                  <button 
-                    onClick={() => setTeam2Players(Math.max(1, team2Players - 1))}
-                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                  >
-                    <Minus className="w-6 h-6 text-white" />
-                  </button>
-                  <span className="text-2xl font-bold text-white">{team2Players}</span>
-                  <button 
-                    onClick={() => setTeam2Players(team2Players + 1)}
-                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                  >
-                    <Plus className="w-6 h-6 text-white" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <button 
-              onClick={() => navigate('/category-select')}
-              className="w-full mt-12 bg-white text-primary-700 py-4 rounded-xl text-xl font-bold transition-all transform hover:scale-105 hover:bg-primary-50"
+          {teams.length < 4 && (
+            <button
+              onClick={addTeam}
+              className="w-full mt-4 flex items-center justify-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
             >
-              التالي
+              <Plus className="w-5 h-5" />
+              إضافة مجموعة
             </button>
+          )}
+
+          <div className="mt-8 border-t border-white/10 pt-6">
+            <button 
+              onClick={handleContinue}
+              disabled={!teams.every(t => t.trim()) || teams.length < 2}
+              className="w-full flex items-center justify-between bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span>التالي</span>
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Game Mode Cards */}
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          <div className="bg-gradient-to-br from-white/5 to-white/2 p-4 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all cursor-pointer">
+            <Users className="h-6 w-6 text-purple-400 mb-2" />
+            <h3 className="text-white font-medium mb-1">المجموعات</h3>
+            <p className="text-white/60 text-sm">٢-٤ فرق تنافسية</p>
+          </div>
+          <div className="bg-gradient-to-br from-white/5 to-white/2 p-4 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all cursor-pointer">
+            <Users className="h-6 w-6 text-blue-400 mb-2" />
+            <h3 className="text-white font-medium mb-1">الفردي</h3>
+            <p className="text-white/60 text-sm">تحدي شخصي ضد الزمن</p>
           </div>
         </div>
       </div>
