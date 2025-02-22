@@ -35,7 +35,7 @@ const Game = () => {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (!isLoggedIn) {
-      navigate('/login', { 
+      navigate('/auth', { 
         state: { 
           from: '/game',
           gameData: location.state 

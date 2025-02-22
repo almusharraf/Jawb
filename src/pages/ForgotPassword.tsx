@@ -10,7 +10,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     // Add password reset logic here
     alert(`تم إرسال رابط إعادة تعيين كلمة المرور إلى ${email}`);
-    navigate('/login');
+    navigate('/auth');
   };
 
   return (

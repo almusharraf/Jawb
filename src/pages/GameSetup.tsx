@@ -9,11 +9,13 @@ const GameSetup = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
-    // Check if the user is logged in by checking if access token is available in localStorage
+    // Debug: Log the current login state to console
     const { access } = getAuthData();
+    console.log("Logged in:", access);  // Add this line to log and check
+
     if (!access) {
       // If not logged in, redirect to login page
-      navigate('/login', { 
+      navigate('/auth', { 
         state: { from: '/game-setup' },
         replace: true
       });
@@ -33,6 +35,17 @@ const GameSetup = () => {
   };
 
   const handleContinue = () => {
+    // Debug: Log the current login state to console
+    const { access } = getAuthData();
+    console.log("Access token on continue:", access);  // Add this line to check
+
+    // Check if user is logged in before proceeding
+    if (!access) {
+      navigate('/auth', { replace: true });
+      return; // Don't continue if not logged in
+    }
+    
+    // Proceed to the category selection page
     navigate('/category-select', { 
       state: { 
         teams: teams.filter(t => t.trim()) 

@@ -1,190 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { saudiQuestions } from '../data/saudiQuestions';
 import toast from 'react-hot-toast';
-
-const categories = [
-  {
-    id: 'saudi-food',
-    name: 'الأكلات الشعبية',
-    icon: '🥘',
-    description: 'أطباق المطبخ السعودي التقليدي',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-landmarks',
-    name: 'المعالم والمدن',
-    icon: '🏰',
-    description: 'المدن السعودية ومعالمها التاريخية',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-traditions',
-    name: 'العادات والتقاليد',
-    icon: '👔',
-    description: 'العادات الاجتماعية والتقاليد السعودية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-history',
-    name: 'شخصيات تاريخية',
-    icon: '👑',
-    description: 'القادة والمؤثرون في تاريخ المملكة',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-symbols',
-    name: 'الرموز الوطنية',
-    icon: '🗡️',
-    description: 'شعارات المملكة والمناسبات الوطنية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-dialect',
-    name: 'اللهجات المحلية',
-    icon: '💬',
-    description: 'كلمات وعبارات من مناطق المملكة',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-literature',
-    name: 'الأدب والشعر',
-    icon: '📚',
-    description: 'الشعر النبطي والأدب المحلي',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-arts',
-    name: 'الفنون والتراث',
-    icon: '🎨',
-    description: 'الفنون الشعبية والأعمال التراثية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-festivals',
-    name: 'المهرجانات',
-    icon: '🎉',
-    description: 'المهرجانات والفعاليات السنوية',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-sports',
-    name: 'الرياضة السعودية',
-    icon: '⚽',
-    description: 'البطولات والأندية والمنتخب السعودي',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-wildlife',
-    name: 'الحياة البرية',
-    icon: '🐪',
-    description: 'الحيوانات والنباتات في البيئة السعودية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-economy',
-    name: 'الاقتصاد',
-    icon: '💰',
-    description: 'النفط والصناعات والتنمية الاقتصادية',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-education',
-    name: 'التعليم',
-    icon: '🎓',
-    description: 'النظام التعليمي والجامعات السعودية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-tech',
-    name: 'التقنية',
-    icon: '💻',
-    description: 'الإنجازات التقنية والرقمية في السعودية',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-art',
-    name: 'الفنون',
-    icon: '🎨',
-    description: 'الفنون التشكيلية والعروض المسرحية',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-architecture',
-    name: 'العمارة',
-    icon: '🏗️',
-    description: 'الطراز المعماري السعودي التقليدي والحديث',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-environment',
-    name: 'البيئة',
-    icon: '🌳',
-    description: 'المحميات الطبيعية وجهود الحفاظ على البيئة',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-innovation',
-    name: 'الابتكار',
-    icon: '🚀',
-    description: 'المبادرات الابتكارية وريادة الأعمال',
-    difficulty: 'hard'
-  },
-  {
-    id: 'saudi-fashion',
-    name: 'الأزياء',
-    icon: '🧥',
-    description: 'الأزياء التقليدية والتطورات الحديثة',
-    difficulty: 'easy'
-  },
-  {
-    id: 'saudi-media',
-    name: 'الإعلام',
-    icon: '🎥',
-    description: 'الصحافة والإنتاج الفني والإعلامي',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-health',
-    name: 'الصحة',
-    icon: '🏥',
-    description: 'النظام الصحي والإنجازات الطبية',
-    difficulty: 'medium'
-  },
-  {
-    id: 'saudi-space',
-    name: 'الفضاء',
-    icon: '🛰️',
-    description: 'برنامج الفضاء السعودي والإنجازات العلمية',
-    difficulty: 'hard'
-  }
-];
-
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
-    case 'easy':
-      return 'bg-emerald-500/20 text-emerald-300';
-    case 'medium':
-      return 'bg-amber-500/20 text-amber-300';
-    case 'hard':
-      return 'bg-rose-500/20 text-rose-300';
-    default:
-      return 'bg-white/20 text-white';
-  }
-};
+import { useCategories } from '../services/queries/categoryQueries';  // Import the useCategories query
+import { getAuthData } from '../services/mutations/auth/storage';  // Import getAuthData
 
 const CategorySelect = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Fetch categories using the useCategories hook
+  const { data: categories, isLoading, isError } = useCategories();
+
+  // Check if the user is logged in
+  useEffect(() => {
+    const { access } = getAuthData();
+    if (!access) {
+      // If not logged in, redirect to login page
+      navigate('/login', {
+        state: { from: '/category-select' },
+        replace: true
+      });
+    }
+  }, [navigate]);
+
+  // If categories are loading or there's an error, show appropriate messages
+  if (isLoading) {
+    return <div>Loading categories...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading categories. Please try again later.</div>;
+  }
 
   const handleCategorySelect = (id: string) => {
     if (selectedCategories.includes(id)) {
@@ -206,7 +53,9 @@ const CategorySelect = () => {
         gameData: {
           selectedCategories,
           teams: state?.teams || [],
-          categories: saudiQuestions.categories.filter(c => selectedCategories.includes(c.id))
+          categories: categories.filter((category) =>
+            selectedCategories.includes(category.id)
+          )
         }
       }
     });
@@ -232,7 +81,7 @@ const CategorySelect = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {categories.map((category: Category) => (
+          {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => handleCategorySelect(category.id)}
@@ -280,4 +129,4 @@ const CategorySelect = () => {
   );
 };
 
-export default CategorySelect; 
+export default CategorySelect;

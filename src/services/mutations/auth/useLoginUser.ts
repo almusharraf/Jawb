@@ -9,21 +9,24 @@ interface LoginData {
 
 const loginUser = async (data: LoginData): Promise<any> => {
   const response = await api.post('/accounts/login/', data);
-  return response.data;
+  return response.data;  // response data should include game_count
 };
 
 export const useLoginUser = () => {
   return useMutation(loginUser, {
     onSuccess: (data, variables, context) => {
-      // Assuming your response from login includes fields:
-      // access, refresh, and optionally first_name.
-      // If first_name is not returned by your backend, you can use the value you passed in.
+      // Save auth data and number of games when login is successful
       saveAuthData({
         access: data.access,
         refresh: data.refresh,
-        first_name: data.first_name || '', // or set a default value
+        first_name: data.first_name || '', // First name
         email: variables.email,
       });
+
+      // Save the number of games in localStorage based on data from the backend
+      if (data.game_count !== undefined) {
+        localStorage.setItem('userGames', data.game_count.toString());
+      }
     },
   });
 };

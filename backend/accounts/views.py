@@ -40,7 +40,8 @@ class LoginView(APIView):
                     "access": str(refresh.access_token),
                     "refresh": str(refresh),
                     "first_name": user.first_name,
-                    "email": user.email
+                    "email": user.email,
+                    "game_count": user.game_count  # Return game_count as part of the login response
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)

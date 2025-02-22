@@ -19,7 +19,7 @@ class SignupSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'email', 'password', 'confirm_password')
+        fields = ('id', 'first_name', 'email', 'password', 'confirm_password', 'game_count')  # Include game_count
     
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -31,10 +31,10 @@ class SignupSerializer(serializers.ModelSerializer):
         user = User.objects.create(
             username=validated_data['email'],  # Using email as username
             email=validated_data['email'],
-            first_name=validated_data['first_name']
+            first_name=validated_data['first_name'],
+            game_count=1  # Initialize with 1 game (or set any value you want)
         )
         user.set_password(validated_data['password'])
-        # game_count is automatically set by your custom user model's default
         user.save()
         return user
 

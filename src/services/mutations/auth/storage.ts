@@ -1,9 +1,8 @@
-// src/services/auth/storage.ts
-
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 const USER_NAME_KEY = 'userName';
 const USER_EMAIL_KEY = 'userEmail';
+const USER_GAMES_KEY = 'userGames';  // Added userGames key
 
 export const saveAuthData = (data: {
   access: string;
@@ -15,6 +14,7 @@ export const saveAuthData = (data: {
   localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh);
   localStorage.setItem(USER_NAME_KEY, data.first_name);
   localStorage.setItem(USER_EMAIL_KEY, data.email);
+  localStorage.setItem(USER_GAMES_KEY, '0'); // You can set a default value for games if needed
 };
 
 export const getAuthData = (): {
@@ -36,4 +36,5 @@ export const clearAuthData = (): void => {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_NAME_KEY);
   localStorage.removeItem(USER_EMAIL_KEY);
+  localStorage.removeItem(USER_GAMES_KEY);  // Remove the number of games on logout
 };
