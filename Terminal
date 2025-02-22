@@ -28,3 +28,39 @@ npm install
 
 # Start the development server
 npm run dev 
+
+# First, make sure you're in your project directory
+cd your-project-directory
+
+# Initialize a new Git repository if not already done
+git init
+
+# Add all files to Git
+git add .
+
+# Create your first commit
+git commit -m "Initial commit"
+
+# Add the remote repository (replace with your actual repository URL)
+git remote add origin your-repository-url
+
+# Rename your current branch to 'main' if it's not already
+git branch -M main
+
+# Push to the remote repository
+git push -u origin main 
+
+# Verify your remote repository
+git remote -v
+
+# If you need to update the remote URL
+git remote set-url origin your-repository-url
+
+# Make sure you're on the main branch
+git checkout main
+
+# Pull any changes from remote (if any)
+git pull origin main
+
+# Then push your changes
+git push -u origin main 
