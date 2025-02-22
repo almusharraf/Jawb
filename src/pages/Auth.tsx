@@ -1,9 +1,9 @@
-// src/components/Auth.tsx
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User } from 'lucide-react';
 import { useLoginUser } from '../services/mutations/auth/useLoginUser';
 import { useSignupUser } from '../services/mutations/auth/useSignupUser';
+import toast from 'react-hot-toast';
 
 const Auth = () => {
   const location = useLocation();
@@ -33,38 +33,48 @@ const Auth = () => {
         { email, password },
         {
           onSuccess: () => {
-            navigate(location.state?.redirectTo || '/game-setup', {
-              state: location.state?.gameData,
+            toast.success('تم تسجيل الدخول بنجاح');
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+
+            // Force a storage event to update navbar
+            window.dispatchEvent(new Event('storage'));
+
+            navigate(location.state?.redirectTo || '/', { 
+              state: location.state?.gameData 
             });
           },
           onError: (err: any) => {
             console.error('Login error:', err);
-            alert('فشل تسجيل الدخول. تأكد من صحة بيانات الاعتماد.');
+            toast.error('فشل تسجيل الدخول. تأكد من صحة بيانات الاعتماد.');
           },
         }
       );
     } else {
       // Signup flow: Check if passwords match
       if (password !== confirmPassword) {
-        alert('كلمة المرور غير متطابقة');
+        toast.error('كلمة المرور غير متطابقة');
         return;
       }
+
       signupMutate(
-        {
-          first_name: name,
-          email,
-          password,
-          confirm_password: confirmPassword,
-        },
+        { first_name: name, email, password, confirm_password: confirmPassword },
         {
           onSuccess: () => {
-            navigate(location.state?.redirectTo || '/game-setup', {
-              state: location.state?.gameData,
+            toast.success('تم إنشاء الحساب بنجاح');
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+
+            // Force a storage event to update navbar
+            window.dispatchEvent(new Event('storage'));
+
+            navigate(location.state?.redirectTo || '/', { 
+              state: location.state?.gameData 
             });
           },
           onError: (err: any) => {
             console.error('Signup error:', err);
-            alert('فشل التسجيل. الرجاء المحاولة مرة أخرى.');
+            toast.error('فشل التسجيل. الرجاء المحاولة مرة أخرى.');
           },
         }
       );

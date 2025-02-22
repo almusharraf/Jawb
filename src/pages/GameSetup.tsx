@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users, ChevronRight } from 'lucide-react';
 
@@ -6,6 +6,16 @@ const GameSetup = () => {
   const navigate = useNavigate();
   const [teams, setTeams] = useState(['', '']);
   const [currentStep, setCurrentStep] = useState(1);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      navigate('/login', { 
+        state: { from: '/game-setup' },
+        replace: true
+      });
+    }
+  }, []);
 
   const addTeam = () => {
     if (teams.length < 4) {
@@ -85,17 +95,12 @@ const GameSetup = () => {
           </div>
         </div>
 
-        {/* Game Mode Cards */}
-        <div className="grid grid-cols-2 gap-4 mt-8">
+        {/* Game Mode Cards - Remove individual play */}
+        <div className="grid grid-cols-1 gap-4 mt-8">
           <div className="bg-gradient-to-br from-white/5 to-white/2 p-4 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all cursor-pointer">
             <Users className="h-6 w-6 text-purple-400 mb-2" />
             <h3 className="text-white font-medium mb-1">المجموعات</h3>
             <p className="text-white/60 text-sm">٢-٤ فرق تنافسية</p>
-          </div>
-          <div className="bg-gradient-to-br from-white/5 to-white/2 p-4 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all cursor-pointer">
-            <Users className="h-6 w-6 text-blue-400 mb-2" />
-            <h3 className="text-white font-medium mb-1">الفردي</h3>
-            <p className="text-white/60 text-sm">تحدي شخصي ضد الزمن</p>
           </div>
         </div>
       </div>
