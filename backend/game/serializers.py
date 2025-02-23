@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Question, UserProgress, Game
+from .models import Category, Question, UserProgress, Game, Team
 
 class CategorySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(read_only=True)
@@ -19,8 +19,14 @@ class UserProgressSerializer(serializers.ModelSerializer):
         model = UserProgress
         fields = ['user', 'question', 'date_answered']
 
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['id', 'name', 'score']
+
 class GameSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
+    teams = TeamSerializer(many=True, read_only=True)
     class Meta:
         model = Game
-        fields = ['id', 'user', 'categories', 'status', 'progress_data', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'name', 'categories', 'teams', 'status', 'progress_data', 'current_turn', 'created_at', 'updated_at']

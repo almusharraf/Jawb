@@ -39,17 +39,16 @@ class UserProgress(models.Model):
     def __str__(self):
         return f"{self.user} - {self.question}"
 
-# New Team model for storing teams within a game.
 class Team(models.Model):
     name = models.CharField(max_length=100)
+    score = models.IntegerField(default=0)
     game = models.ForeignKey('Game', on_delete=models.CASCADE, related_name='teams')
 
     def __str__(self):
         return self.name
 
-# Updated Game model with a name field.
 class Game(models.Model):
-    name = models.CharField(max_length=255)  # New field for the game name
+    name = models.CharField(max_length=255)  # Game name
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games')
     categories = models.ManyToManyField(Category)
     status = models.CharField(
@@ -57,16 +56,9 @@ class Game(models.Model):
         choices=[('in_progress', 'In Progress'), ('completed', 'Completed')],
         default='in_progress'
     )
+    # Track which team's turn it is (index of team in order)
+    current_turn = models.IntegerField(default=0)
     # progress_data stores each category’s selected questions by difficulty and which ones are answered.
-    # Structure example:
-    # {
-    #   "<cat_id>": {
-    #         "easy": {"selected": [q_id1, q_id2], "answered": []},
-    #         "medium": {"selected": [q_id3, q_id4], "answered": []},
-    #         "hard": {"selected": [q_id5, q_id6], "answered": []}
-    #   },
-    #   ...
-    # }
     progress_data = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
