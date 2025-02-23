@@ -20,7 +20,7 @@ const Home = () => {
               لعبة ثقافية تنافسية عن المملكة العربية السعودية
             </p>
             <button 
-              onClick={() => navigate('/game-setup')}
+              onClick={() => navigate('/combined-game-setup')}
               className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-12 py-5 rounded-2xl text-lg font-bold hover:scale-105 transition-transform"
             >
               ابدأ اللعب
@@ -130,7 +130,7 @@ const Home = () => {
           {/* Start Game CTA */}
           <div className="text-center">
             <button 
-              onClick={() => navigate('/game-setup')}
+              onClick={() => navigate('/combined-game-setup')}
               className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-16 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform"
             >
               ابدأ اللعب الآن
@@ -160,7 +160,7 @@ const Home = () => {
               <ul className="space-y-2">
                 <li>
                   <button 
-                    onClick={() => navigate('/game-setup')}
+                    onClick={() => navigate('/combined-game-setup')}
                     className="text-white/60 hover:text-white transition-colors"
                   >
                     ابدأ اللعب

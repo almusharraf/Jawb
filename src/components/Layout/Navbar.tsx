@@ -93,7 +93,7 @@ const Navbar = () => {
                 تسجيل الدخول
               </Link>
               <Link 
-                to="/game-setup" 
+                to="/combined-game-setup" 
                 className="bg-primary-600 text-white hover:bg-primary-700 px-6 py-2 rounded-full transition-colors font-medium"
               >
                 العب

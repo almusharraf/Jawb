@@ -23,6 +23,7 @@ export interface GameResponse {
 
 export const startGame = async (payload: StartGamePayload): Promise<GameResponse> => {
   const res = await api.post('/game/start-game/', payload);
+  console.log("startGame response:", res.data);  // Print the response data
   return res.data;
 };
 

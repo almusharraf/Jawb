@@ -117,7 +117,7 @@ const Signup = () => {
 
             <p className="text-white/70 text-center text-sm">
               لديك حساب؟{' '}
-              <Link to="/login" className="text-white font-medium hover:underline">
+              <Link to="/auth" className="text-white font-medium hover:underline">
                 سجل الدخول
               </Link>
             </p>

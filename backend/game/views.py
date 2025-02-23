@@ -2,12 +2,13 @@ import random
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .models import Category, Question, UserProgress, Game
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .models import Category, Question, UserProgress, Game, Team
 from .serializers import CategorySerializer, QuestionSerializer, GameSerializer
 from django.db.models import Count
 
 class CategoryListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -34,41 +35,58 @@ class StartGameView(APIView):
     POST endpoint to start a new game.
     Expects JSON:
     {
-       "categories": [<category_id1>, <category_id2>, ...]  // must be exactly 6 categories
+       "name": "Optional game name",  // Optional; if not provided, a default is used.
+       "categories": [<category_id1>, <category_id2>, ...],  // must be exactly 6 categories
+       "teams": [<team_name1>, <team_name2>, ...]  // must be between 2 and 4 team names, each non-empty.
     }
     For each category, selects 2 easy, 2 medium, and 2 hard questions (if available)
     and stores their IDs in progress_data.
-    Also, decrements the user's game_count by one.
+    Also, decrements the user's game_count by one and creates Team objects.
     """
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         category_ids = request.data.get('categories', [])
+        teams = request.data.get('teams', [])
+        
         if len(category_ids) != 6:
             return Response(
                 {"detail": "Please select exactly 6 categories."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        if not (2 <= len(teams) <= 4):
+            return Response(
+                {"detail": "Please provide between 2 and 4 teams."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Ensure every team has a non-empty name.
+        if any(not team.strip() for team in teams):
+            return Response(
+                {"detail": "All teams must have a name."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         user = request.user
         
-        # Check if the user has any games left
+        # Check if the user has any games left.
         if user.game_count <= 0:
             return Response(
                 {"detail": "No games remaining."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Decrement the user's game count and save
+        # Decrement the user's game count and save.
         user.game_count -= 1
         user.save()
-
+        
         progress_data = {}
         for cat_id in category_ids:
             cat_data = {}
             for difficulty in ['easy', 'medium', 'hard']:
                 qs = Question.objects.filter(category_id=cat_id, difficulty=difficulty)
-                # Randomly select 2 questions if available
+                # Randomly select 2 questions if available.
                 selected = list(qs.order_by('?').values_list('id', flat=True)[:2])
                 if len(selected) < 2:
                     return Response(
@@ -77,13 +95,18 @@ class StartGameView(APIView):
                     )
                 cat_data[difficulty] = {"selected": selected, "answered": []}
             progress_data[str(cat_id)] = cat_data
-
-        # Create a new game session
-        game = Game.objects.create(user=user, progress_data=progress_data)
-        # Add the chosen categories
+        
+        # Use provided game name or a default.
+        game_name = request.data.get('name', f"Game by {user.username}")
+        game = Game.objects.create(user=user, progress_data=progress_data, name=game_name)
+        # Add the chosen categories.
         game.categories.set(Category.objects.filter(id__in=category_ids))
         game.save()
-
+        
+        # Create team objects for the game.
+        for team_name in teams:
+            Team.objects.create(game=game, name=team_name)
+        
         serializer = GameSerializer(game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

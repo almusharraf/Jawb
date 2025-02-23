@@ -3,8 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Layout/Navbar';
 import Home from './pages/Home';
-import GameSetup from './pages/GameSetup';
-import CategorySelect from './pages/CategorySelect';
+import CombinedGameSetup from './pages/CombinedGameSetup';
 import Game from './pages/Game';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -59,8 +58,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/play" element={<Signup />} />
-            <Route path="/game-setup" element={<GameSetup />} />
-            <Route path="/category-select" element={<CategorySelect />} />
+            <Route path="/combined-game-setup" element={<CombinedGameSetup />} />
             <Route path="/game" element={<Game />} />
             <Route path="/my-games" element={<MyGames />} />
             <Route path="/about" element={<About />} />
