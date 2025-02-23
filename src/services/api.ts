@@ -36,7 +36,7 @@ api.interceptors.response.use(
       if (refresh) {
         try {
           // Attempt to refresh the access token
-          const response = await api.post('/token/refresh/', { refresh });
+          const response = await api.post('accounts/token/refresh/', { refresh });
           const newAccess = response.data.access;
           // Save new access token
           const currentAuth = getAuthData();
