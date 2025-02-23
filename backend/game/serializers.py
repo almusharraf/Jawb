@@ -1,22 +1,26 @@
 from rest_framework import serializers
-from .models import Category, Question, UserProgress
+from .models import Category, Question, UserProgress, Game
 
 class CategorySerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(read_only=True)  # Added field to return the image URL
-
+    image = serializers.ImageField(read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'image']  # Include the image field
+        fields = ['id', 'name', 'description', 'image']
 
 class QuestionSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(read_only=True)  # Added image field for question
-    video = serializers.FileField(read_only=True)    # Optional: include video if needed
-
+    image = serializers.ImageField(read_only=True)
+    video = serializers.FileField(read_only=True)
     class Meta:
         model = Question
-        fields = ['id', 'category', 'question_text', 'image', 'video', 'answer']
+        fields = ['id', 'category', 'question_text', 'image', 'video', 'answer', 'difficulty']
 
 class UserProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProgress
         fields = ['user', 'question', 'date_answered']
+
+class GameSerializer(serializers.ModelSerializer):
+    categories = CategorySerializer(many=True, read_only=True)
+    class Meta:
+        model = Game
+        fields = ['id', 'user', 'categories', 'status', 'progress_data', 'created_at', 'updated_at']
