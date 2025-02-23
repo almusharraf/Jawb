@@ -160,7 +160,7 @@ class UpdateGameProgressView(APIView):
         return Response({"detail": "Progress updated.", "game_id": game.id, "complete": complete}, status=status.HTTP_200_OK)
 
 
-# In your backend views.py
+# In your views.py
 class ListGamesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -169,4 +169,5 @@ class ListGamesView(APIView):
         games = Game.objects.filter(user=request.user)
         serializer = GameSerializer(games, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 

@@ -1,8 +1,6 @@
-// src/pages/MyGames.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameListQuery, GameListResponse } from '../services/queries/gameList';
-import toast from 'react-hot-toast';
 
 const MyGames = () => {
   const navigate = useNavigate();
@@ -43,7 +41,9 @@ const MyGames = () => {
                     if (game.status === "in_progress") {
                       navigate("/game", { state: { gameData: game } });
                     } else {
-                      toast("هذه اللعبة منتهية. عرض النتائج قريباً.");
+                      // For completed games, you can navigate to a detailed results page.
+                      // Here we simply alert; adjust as needed.
+                      alert("هذه اللعبة منتهية.");
                     }
                   }}
                   className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors"
