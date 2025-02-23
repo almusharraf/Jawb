@@ -14,7 +14,7 @@ export interface UpdateGameProgressResponse {
   detail: string;
   game_id: number;
   complete: boolean;
-  teams: { id: number; name: string; score: number }[];
+  teams: Array<{ id: number; name: string; score: number }>;
   current_turn: number;
 }
 
@@ -22,7 +22,7 @@ export const updateGameProgress = async (
   payload: UpdateGameProgressPayload
 ): Promise<UpdateGameProgressResponse> => {
   const res = await api.post('/game/update-game-progress/', payload);
-  console.log("updateGameProgress response:", res.data); // Debug print
+  console.log("updateGameProgress response:", res.data); // Debug print in update view
   return res.data;
 };
 

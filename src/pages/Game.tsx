@@ -1,3 +1,4 @@
+// src/pages/Game.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResumeGameQuery } from '../services/queries/game';
@@ -24,7 +25,11 @@ interface GameData {
   teams: Team[];
   categories: Category[];
   status: string;
-  progress_data: Record<string, any>;
+  progress_data: Record<string, {
+    easy: { selected: number[]; answered: number[] };
+    medium: { selected: number[]; answered: number[] };
+    hard: { selected: number[]; answered: number[] };
+  }>;
   current_turn: number;
   created_at: string;
   updated_at: string;
@@ -41,10 +46,10 @@ const Game = () => {
     }
   }, [navigate]);
 
-  // Fetch game data using resume query.
+  // Fetch game data.
   const { data: gameData, isLoading, isError } = useResumeGameQuery<GameData>();
 
-  // Local state to keep a copy of game data for immediate updates.
+  // Local copy for immediate UI updates.
   const [localGameData, setLocalGameData] = useState<GameData | null>(null);
   useEffect(() => {
     if (gameData) {
@@ -53,7 +58,7 @@ const Game = () => {
     }
   }, [gameData]);
 
-  // Use the updateGameProgress mutation.
+  // Mutation to update game progress.
   const { mutate: updateProgress } = useUpdateGameProgressMutation();
 
   // Modal state for showing a question.
@@ -68,7 +73,7 @@ const Game = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [timer, setTimer] = useState(60);
 
-  // Track current team index locally (should match localGameData.current_turn).
+  // Track current team index (should mirror localGameData.current_turn).
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
 
   // Start countdown timer when modal is open.
@@ -90,41 +95,43 @@ const Game = () => {
     setCurrentQuestion(null);
   }, []);
 
-  // Simulate showing a question based on a selected category and point value.
-  const handleShowQuestion = (category: Category, points: number) => {
-    // In a real app, fetch the actual question.
+  // Helper: convert points value to difficulty.
+  const getDifficultyFromPoints = (points: number): 'easy' | 'medium' | 'hard' => {
+    if (points === 300) return 'easy';
+    if (points === 500) return 'medium';
+    return 'hard';
+  };
+
+  // When a user clicks a circle for a specific question.
+  const handleQuestionCircleClick = (category: Category, points: number, questionId: number, difficulty: 'easy' | 'medium' | 'hard') => {
     setCurrentQuestion({
-      id: Math.floor(Math.random() * 1000), // Dummy question id.
+      id: questionId,
       text: `هذا سؤال بقيمة ${points} نقطة لفئة ${category.name}.`,
       points,
       options: ['الخيار أ', 'الخيار ب', 'الخيار ج', 'الخيار د'],
       categoryId: category.id,
-      difficulty: points === 300 ? 'easy' : points === 500 ? 'medium' : 'hard'
+      difficulty,
     });
     setModalVisible(true);
     setTimer(60);
   };
 
-  // Handle answer selection.
+  // Handle answer selection. (No negative marking.)
   const handleAnswer = (selectedOption: string, optionIndex: number) => {
     if (!currentQuestion || !localGameData) return;
-    // For demonstration, assume option index 0 is correct.
-    const isCorrect = optionIndex === 0;
-    const pointsAwarded = isCorrect ? currentQuestion.points : -Math.floor(currentQuestion.points * 0.5);
+    const isCorrect = optionIndex === 0; // Assume first option is correct.
+    const pointsAwarded = isCorrect ? currentQuestion.points : 0;
     toast[isCorrect ? 'success' : 'error'](
       isCorrect
         ? `إجابة صحيحة! تمت إضافة ${pointsAwarded} نقطة.`
-        : `إجابة خاطئة! تم خصم ${-pointsAwarded} نقطة.`
+        : `إجابة خاطئة! لم يتم إضافة نقاط.`
     );
-
-    // Get the current team's id based on localGameData.current_turn.
     const currentTeam = localGameData.teams[localGameData.current_turn];
     if (!currentTeam) {
       toast.error("فريق غير موجود");
       return;
     }
-
-    // Call the update progress mutation with the payload.
+    // Call update mutation.
     updateProgress(
       {
         game_id: localGameData.id,
@@ -137,8 +144,10 @@ const Game = () => {
       {
         onSuccess: (data) => {
           console.log("Update progress success:", data);
-          // Update local game data with new teams and current_turn.
-          setLocalGameData(prev => prev ? { ...prev, teams: data.teams, current_turn: data.current_turn } : prev);
+          // Update local game data.
+          setLocalGameData(prev =>
+            prev ? { ...prev, teams: data.teams, current_turn: data.current_turn } : prev
+          );
         },
         onError: (error: any) => {
           console.error("Update progress error:", error);
@@ -146,11 +155,25 @@ const Game = () => {
         },
       }
     );
-
     closeModal();
   };
 
-  // Fallback values from local game data.
+  // Helper: determine if a given question (by id) is answered.
+  const isQuestionAnswered = (categoryId: number, difficulty: 'easy' | 'medium' | 'hard', qid: number): boolean => {
+    if (!localGameData) return false;
+    const catProgress = localGameData.progress_data[String(categoryId)];
+    if (!catProgress || !catProgress[difficulty]) return false;
+    return catProgress[difficulty].answered.includes(qid);
+  };
+
+  // Check if a difficulty row is fully complete.
+  const isDifficultyComplete = (category: Category, difficulty: 'easy' | 'medium' | 'hard'): boolean => {
+    if (!localGameData) return false;
+    const catProgress = localGameData.progress_data[String(category.id)];
+    if (!catProgress || !catProgress[difficulty]) return false;
+    return catProgress[difficulty].answered.length >= catProgress[difficulty].selected.length;
+  };
+
   const categories: Category[] = localGameData?.categories || [];
   const teams: Team[] = localGameData?.teams || [];
   const gameName = localGameData?.name || 'Game';
@@ -223,16 +246,11 @@ const Game = () => {
           <h2 className="text-4xl font-bold text-center mb-4">الفئات</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category: Category) => (
-              <div
-                key={category.id}
-                className="bg-white/5 shadow-lg backdrop-blur-md p-6 rounded-lg border border-white/10 relative"
-              >
+              <div key={category.id} className="bg-white/5 shadow-lg backdrop-blur-md p-6 rounded-lg border border-white/10 relative">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                   <div>
                     <h3 className="text-2xl font-bold">{category.name}</h3>
-                    <p className="mt-2 text-sm text-gray-300">
-                      {category.description}
-                    </p>
+                    <p className="mt-2 text-sm text-gray-300">{category.description}</p>
                   </div>
                   {category.image && (
                     <img
@@ -242,26 +260,44 @@ const Game = () => {
                     />
                   )}
                 </div>
-                {/* Buttons for each difficulty */}
+                {/* For each difficulty, show two circle buttons */}
                 <div className="absolute top-2 right-2 flex flex-col gap-2">
-                  <button
-                    onClick={() => handleShowQuestion(category, 300)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full shadow-lg transition-transform transform hover:scale-105"
-                  >
-                    300
-                  </button>
-                  <button
-                    onClick={() => handleShowQuestion(category, 500)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-full shadow-lg transition-transform transform hover:scale-105"
-                  >
-                    500
-                  </button>
-                  <button
-                    onClick={() => handleShowQuestion(category, 700)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full shadow-lg transition-transform transform hover:scale-105"
-                  >
-                    700
-                  </button>
+                  {(['easy', 'medium', 'hard'] as const).map(difficulty => {
+                    // Determine the points value for this difficulty.
+                    const pointsValue = difficulty === 'easy' ? 300 : difficulty === 'medium' ? 500 : 700;
+                    // Get the list of selected question IDs for this category and difficulty.
+                    const catProgress = localGameData.progress_data[String(category.id)];
+                    const selectedQuestions: number[] = catProgress ? catProgress[difficulty].selected : [];
+                    return (
+                      <div key={difficulty} className="flex gap-2">
+                        {selectedQuestions.map(qid => {
+                          const answered = isQuestionAnswered(category.id, difficulty, qid);
+                          return (
+                            <button
+                              key={qid}
+                              onClick={() => {
+                                if (!answered) {
+                                  handleQuestionCircleClick(category, pointsValue, qid, difficulty);
+                                }
+                              }}
+                              disabled={answered}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md transition-colors ${
+                                answered
+                                  ? 'bg-gray-600 opacity-50 cursor-not-allowed'
+                                  : difficulty === 'easy'
+                                  ? 'bg-green-500 hover:bg-green-600'
+                                  : difficulty === 'medium'
+                                  ? 'bg-yellow-500 hover:bg-yellow-600'
+                                  : 'bg-red-500 hover:bg-red-600'
+                              }`}
+                            >
+                              {pointsValue}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

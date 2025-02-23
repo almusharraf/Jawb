@@ -113,7 +113,6 @@ class ResumeGameView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        print("Authenticated user (ResumeGame):", request.user)
         user = request.user
         game = Game.objects.filter(user=user, status='in_progress')\
                 .prefetch_related('teams', 'categories')\
@@ -123,7 +122,6 @@ class ResumeGameView(APIView):
             print("ResumeGameView: No in-progress game found")
             return Response({"detail": "No in-progress game found."}, status=status.HTTP_404_NOT_FOUND)
         serializer = GameSerializer(game, context={'request': request})
-        print("Serialized ResumeGame Data:", serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UpdateGameProgressView(APIView):
@@ -135,10 +133,11 @@ class UpdateGameProgressView(APIView):
        "category_id": <category_id>,
        "difficulty": "easy" | "medium" | "hard",
        "question_id": <question_id>,
-       "team_id": <team_id>,
-       "points_awarded": <integer>
+       "team_id": <team_id>,         # ID of the team that answered
+       "points_awarded": <integer>    # Points to add (or subtract)
     }
-    Marks the question as answered, updates the team's score, and cycles turn.
+    Marks the question as answered, updates the team's score, and cycles the turn.
+    Returns the updated team scores and the current turn.
     """
     permission_classes = [IsAuthenticated]
 
@@ -150,26 +149,27 @@ class UpdateGameProgressView(APIView):
         question_id = request.data.get("question_id")
         team_id = request.data.get("team_id")
         points_awarded = request.data.get("points_awarded")
-        
+
         if None in (game_id, category_id, difficulty, question_id, team_id, points_awarded):
             print("UpdateGameProgressView: Missing required fields")
             return Response({"detail": "Missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             game = Game.objects.get(id=game_id, user=request.user, status="in_progress")
         except Game.DoesNotExist:
             print("UpdateGameProgressView: Game not found or already completed")
             return Response({"detail": "Game not found or already completed."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         progress_data = game.progress_data
         if category_id not in progress_data:
             print("UpdateGameProgressView: Category not found in game progress")
             return Response({"detail": "Category not found in game progress."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         cat_data = progress_data[category_id]
         if difficulty not in cat_data:
             print("UpdateGameProgressView: Difficulty not found for category")
             return Response({"detail": "Difficulty not found for category."}, status=status.HTTP_400_BAD_REQUEST)
+        
         if question_id not in cat_data[difficulty]["selected"]:
             print("UpdateGameProgressView: Question not part of the selected questions")
             return Response({"detail": "Question not part of the selected questions."}, status=status.HTTP_400_BAD_REQUEST)
@@ -177,10 +177,12 @@ class UpdateGameProgressView(APIView):
             print("UpdateGameProgressView: Question already marked as answered")
             return Response({"detail": "Question already marked as answered."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Mark question as answered.
         cat_data[difficulty]["answered"].append(question_id)
         progress_data[category_id] = cat_data
         game.progress_data = progress_data
-        
+
+        # Update team score.
         try:
             team = game.teams.get(id=team_id)
         except Team.DoesNotExist:
@@ -191,15 +193,15 @@ class UpdateGameProgressView(APIView):
         except ValueError:
             print("UpdateGameProgressView: Invalid points_awarded value")
             return Response({"detail": "Invalid points_awarded value."}, status=status.HTTP_400_BAD_REQUEST)
-        
         team.score += points_awarded
         team.save()
-        
-        # Cycle turn: update current_turn field (assumes Game model has a current_turn field)
+
+        # Cycle turn: update current_turn (assumes Game model has a current_turn field)
         teams_list = list(game.teams.all().order_by('id'))
         if teams_list:
             game.current_turn = (game.current_turn + 1) % len(teams_list)
-        
+
+        # Check if game is complete.
         complete = True
         for cat, data in progress_data.items():
             for diff in ["easy", "medium", "hard"]:
@@ -212,7 +214,7 @@ class UpdateGameProgressView(APIView):
         if complete:
             game.status = "completed"
         game.save()
-        
+
         response_data = {
             "detail": "Progress updated.",
             "game_id": game.id,
@@ -222,6 +224,7 @@ class UpdateGameProgressView(APIView):
         }
         print("Serialized UpdateGameProgress Data:", response_data)
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 class ListGamesView(APIView):
     permission_classes = [IsAuthenticated]
