@@ -76,12 +76,10 @@ class StartGameView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class ResumeGameView(APIView):
-    """
-    GET endpoint to resume the current in-progress game for the authenticated user.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        print("Authenticated user:", request.user)
         user = request.user
         game = Game.objects.filter(user=user, status='in_progress').first()
         if not game:

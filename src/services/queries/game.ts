@@ -1,6 +1,6 @@
 // src/services/queries/game.ts
 import { useQuery } from '@tanstack/react-query';
-import api from '../../api';
+import api from '../api';
 
 export interface GameResponse {
   id: number;
@@ -24,8 +24,7 @@ export const fetchResumeGame = async (): Promise<GameResponse> => {
 
 export const useResumeGameQuery = () => {
   return useQuery(['resume-game'], fetchResumeGame, {
-    // This query should only run if a valid token exists.
-    // Optionally you can enable it conditionally:
-    // enabled: Boolean(localStorage.getItem('accessToken')),
+    // Optionally: enable this query only if the user is logged in.
+    // enabled: Boolean(localStorage.getItem('accessToken'))
   });
 };

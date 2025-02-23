@@ -54,40 +54,40 @@ const CategorySelect = () => {
     }
   };
 
-  const handleStartGame = () => {
-    const payload: StartGamePayload = {
-      categories: selectedCategories.map(id => parseInt(id, 10)),
-      teams: state?.teams || [],
-    };
-  
-    // Log payload for debugging
-    console.log("Starting game with payload:", payload);
-  
-    if (!authData?.access) {
-      navigate('/auth', {
-        state: {
-          redirectTo: '/game',
-          gameData: {
-            selectedCategories,
-            teams: state?.teams || [],
-            categories: categories.filter(category =>
-              selectedCategories.includes(category.id)
-            ),
-          },
-        },
-      });
-    } else {
-      startGameMutation(payload, {
-        onSuccess: (data) => {
-          navigate('/game', { state: { gameData: data } });
-        },
-        onError: (error: any) => {
-          console.error("Start game error:", error);
-          toast.error('حدث خطأ أثناء بدء اللعبة.');
-        },
-      });
-    }
+  // In CategorySelect.tsx
+const handleStartGame = () => {
+  const payload: StartGamePayload = {
+    categories: selectedCategories.map(id => parseInt(id, 10)),
+    teams: state?.teams || [],
   };
+
+  if (!authData?.access) {
+    navigate('/auth', {
+      state: {
+        redirectTo: '/game',
+        gameData: {
+          selectedCategories,
+          teams: state?.teams || [],
+          categories: categories.filter(category =>
+            selectedCategories.includes(category.id)
+          ),
+        },
+      },
+    });
+  } else {
+    startGameMutation(payload, {
+      onSuccess: (data) => {
+        // When starting the game, you can pass the game data via state
+        navigate('/game', { state: { gameData: data } });
+      },
+      onError: (error: any) => {
+        toast.error('حدث خطأ أثناء بدء اللعبة.');
+        console.error("Start game error:", error);
+      },
+    });
+  }
+};
+
   
 
   return (

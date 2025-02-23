@@ -9,18 +9,19 @@ const api = axios.create({
   },
 });
 
-// Add a request interceptor to include the access token if available
+// Add a request interceptor to attach the token
 api.interceptors.request.use(
   (config) => {
     const { access } = getAuthData();
     if (access) {
       config.headers.Authorization = `Bearer ${access}`;
+      console.log('Attached token:', access); // Debug log
+    } else {
+      console.log('No token found in localStorage');
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;
