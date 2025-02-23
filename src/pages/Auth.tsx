@@ -13,8 +13,8 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   // Common fields
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('alotaishan@gmail.com');
+  const [password, setPassword] = useState('Abood665@');
 
   // Signup-specific fields
   const [name, setName] = useState('');

@@ -17,13 +17,13 @@ const CategorySelect = () => {
     userGames?: string | null;
   } | null>(null);
 
-  // Load auth data on mount
+  // Load auth data once on mount
   useEffect(() => {
     const storedAuth = getAuthData();
     setAuthData(storedAuth);
   }, []);
 
-  // Optional: If you want to redirect immediately when not logged in:
+  // Once authData is loaded, check if the user is not logged in and redirect if needed
   useEffect(() => {
     if (authData !== null && !authData.access) {
       navigate('/login', { state: { from: '/category-select' }, replace: true });
@@ -31,7 +31,6 @@ const CategorySelect = () => {
   }, [authData, navigate]);
 
   const { data: categories, isLoading, isError } = useCategories();
-
   const { mutate: startGameMutation } = useStartGameMutation();
 
   if (authData === null || isLoading) {
@@ -54,42 +53,51 @@ const CategorySelect = () => {
     }
   };
 
-  // In CategorySelect.tsx
-const handleStartGame = () => {
-  const payload: StartGamePayload = {
-    categories: selectedCategories.map(id => parseInt(id, 10)),
-    teams: state?.teams || [],
-  };
-
-  if (!authData?.access) {
-    navigate('/auth', {
-      state: {
-        redirectTo: '/game',
-        gameData: {
-          selectedCategories,
-          teams: state?.teams || [],
-          categories: categories.filter(category =>
-            selectedCategories.includes(category.id)
-          ),
-        },
-      },
-    });
-  } else {
-    startGameMutation(payload, {
-      onSuccess: (data) => {
-        // When starting the game, you can pass the game data via state
-        navigate('/game', { state: { gameData: data } });
-      },
-      onError: (error: any) => {
-        toast.error('حدث خطأ أثناء بدء اللعبة.');
-        console.error("Start game error:", error);
-      },
-    });
-  }
-};
-
+  const handleStartGame = () => {
+    const payload: StartGamePayload = {
+      categories: selectedCategories.map(id => parseInt(id, 10)),
+      teams: state?.teams || [],
+    };
   
-
+    if (!authData?.access) {
+      navigate('/auth', {
+        state: {
+          redirectTo: '/game',
+          gameData: {
+            selectedCategories,
+            teams: state?.teams || [],
+            categories: categories.filter(category =>
+              selectedCategories.includes(category.id)
+            ),
+          },
+        },
+      });
+    } else {
+      startGameMutation(payload, {
+        onSuccess: (data) => {
+          // Decrement the number of games left in localStorage:
+          let currentGames = localStorage.getItem('userGames');
+          if (currentGames) {
+            const newGames = parseInt(currentGames, 10) - 1;
+            localStorage.setItem('userGames', newGames.toString());
+          }
+          // Dispatch storage event so that Navbar picks up the change
+          window.dispatchEvent(new Event('storage'));
+          
+          // Optionally, update authData state if needed:
+          setAuthData((prev) => prev ? { ...prev, userGames: localStorage.getItem('userGames') } : prev);
+  
+          // Navigate to game screen with returned game data.
+          navigate('/game', { state: { gameData: data } });
+        },
+        onError: (error: any) => {
+          console.error("Start game error:", error);
+          toast.error('حدث خطأ أثناء بدء اللعبة.');
+        },
+      });
+    }
+  };
+  
   return (
     <div className="min-h-[calc(100vh-80px)] bg-primary-700 relative overflow-hidden">
       {/* Decorative Elements */}

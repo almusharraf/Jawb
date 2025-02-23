@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Crown, LogOut } from 'lucide-react';
-import { getAuthData, clearAuthData } from '../../services/mutations/auth/storage'; // Import getAuthData and clearAuthData
+import { getAuthData, clearAuthData } from '../../services/mutations/auth/storage';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -18,10 +18,9 @@ const Navbar = () => {
       setIsLoggedIn(loggedIn);
 
       if (loggedIn) {
-        setUserName(first_name || '');  // Set user name from localStorage
-        // Fetch the user's number of games (assuming it's stored in localStorage)
+        setUserName(first_name || '');
         const games = localStorage.getItem('userGames');
-        setUserGames(games ? parseInt(games, 10) : 0);  // Fetch number of games
+        setUserGames(games ? parseInt(games, 10) : 0);
       }
     };
 
@@ -36,16 +35,9 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Clear all user data from localStorage on logout
-    clearAuthData();  // Clear auth data from localStorage
-
-    // Force storage event to reflect changes
+    clearAuthData();
     window.dispatchEvent(new Event('storage'));
-
-    // Navigate to home
     navigate('/', { replace: true });
-
-    // Manually update state to reflect logout
     setIsLoggedIn(false);
     setUserName('');
     setUserGames(0);
@@ -70,12 +62,19 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* User Info and Logout Button */}
+        {/* User Info and Action Buttons */}
         <div className="flex items-center gap-8">
           {isLoggedIn ? (
             <>
               <div className="flex items-center gap-4">
                 <span className="text-sm font-semibold text-primary-700">مرحباً، {userName}</span>
+                {/* New "My Games" button */}
+                <button
+                  onClick={() => navigate('/my-games')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                >
+                  أعرض ألعابي
+                </button>
                 <button
                   onClick={handleLogout}
                   className="text-red-600 hover:text-red-700 font-medium flex items-center gap-2"

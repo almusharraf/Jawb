@@ -1,6 +1,10 @@
-// src/services/queries/game.ts
-import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import { useMutation } from '@tanstack/react-query';
+
+export interface StartGamePayload {
+  categories: number[];
+  teams: string[];
+}
 
 export interface GameResponse {
   id: number;
@@ -17,15 +21,11 @@ export interface GameResponse {
   updated_at: string;
 }
 
-export const fetchResumeGame = async (): Promise<GameResponse> => {
-  const res = await api.get('/game/resume-game/');
+export const startGame = async (payload: StartGamePayload): Promise<GameResponse> => {
+  const res = await api.post('/game/start-game/', payload);
   return res.data;
 };
 
-export const useResumeGameQuery = () => {
-  return useQuery(['resume-game'], fetchResumeGame, {
-    // This query should only run if a valid token exists.
-    // Optionally you can enable it conditionally:
-    // enabled: Boolean(localStorage.getItem('accessToken')),
-  });
+export const useStartGameMutation = () => {
+  return useMutation(startGame);
 };

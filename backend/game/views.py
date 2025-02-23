@@ -38,6 +38,7 @@ class StartGameView(APIView):
     }
     For each category, selects 2 easy, 2 medium, and 2 hard questions (if available)
     and stores their IDs in progress_data.
+    Also, decrements the user's game_count by one.
     """
     permission_classes = [IsAuthenticated]
 
@@ -50,6 +51,17 @@ class StartGameView(APIView):
             )
         
         user = request.user
+        
+        # Check if the user has any games left
+        if user.game_count <= 0:
+            return Response(
+                {"detail": "No games remaining."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Decrement the user's game count and save
+        user.game_count -= 1
+        user.save()
 
         progress_data = {}
         for cat_id in category_ids:
@@ -74,6 +86,7 @@ class StartGameView(APIView):
 
         serializer = GameSerializer(game, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class ResumeGameView(APIView):
     permission_classes = [IsAuthenticated]
@@ -145,3 +158,15 @@ class UpdateGameProgressView(APIView):
             # Optionally, perform any cleanup or post-game logic here.
         game.save()
         return Response({"detail": "Progress updated.", "game_id": game.id, "complete": complete}, status=status.HTTP_200_OK)
+
+
+# In your backend views.py
+class ListGamesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        print("Authenticated user:", request.user)  # For debugging
+        games = Game.objects.filter(user=request.user)
+        serializer = GameSerializer(games, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

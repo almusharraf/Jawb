@@ -10,6 +10,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Signup from './pages/Signup';
 import Auth from './pages/Auth';
+import MyGames from './pages/MyGames';
 import ForgotPassword from './pages/ForgotPassword';
 import { Toaster } from 'react-hot-toast';
 
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="/game-setup" element={<GameSetup />} />
             <Route path="/category-select" element={<CategorySelect />} />
             <Route path="/game" element={<Game />} />
+            <Route path="/my-games" element={<MyGames />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/signup" element={<Signup />} />

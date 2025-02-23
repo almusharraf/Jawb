@@ -6,6 +6,7 @@ from .views import (
     StartGameView,
     ResumeGameView,
     UpdateGameProgressView,
+    ListGamesView,  # new view
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('start-game/', StartGameView.as_view(), name='start-game'),
     path('resume-game/', ResumeGameView.as_view(), name='resume-game'),
     path('update-game-progress/', UpdateGameProgressView.as_view(), name='update-game-progress'),
+    path('list/', ListGamesView.as_view(), name='game-list'),
 ]
