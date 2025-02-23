@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useCategories } from '../services/queries/categoryQueries';  // Import the useCategories query
-import { getAuthData } from '../services/mutations/auth/storage';  // Import getAuthData
+import { useCategories } from '../services/queries/categoryQueries';
+import { getAuthData } from '../services/mutations/auth/storage';
 
 const CategorySelect = () => {
   const navigate = useNavigate();
@@ -19,12 +19,11 @@ const CategorySelect = () => {
       // If not logged in, redirect to login page
       navigate('/login', {
         state: { from: '/category-select' },
-        replace: true
+        replace: true,
       });
     }
   }, [navigate]);
 
-  // If categories are loading or there's an error, show appropriate messages
   if (isLoading) {
     return <div>Loading categories...</div>;
   }
@@ -53,11 +52,11 @@ const CategorySelect = () => {
         gameData: {
           selectedCategories,
           teams: state?.teams || [],
-          categories: categories.filter((category) =>
+          categories: categories.filter(category =>
             selectedCategories.includes(category.id)
-          )
-        }
-      }
+          ),
+        },
+      },
     });
   };
 
@@ -72,16 +71,20 @@ const CategorySelect = () => {
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="text-center text-white mb-12">
           <h2 className="text-5xl font-bold mb-4">اختر الفئات</h2>
-          <p className="text-lg opacity-80">٣ فئات لفريقك و ٣ فئات للفريق المنافس</p>
+          <p className="text-lg opacity-80">
+            ٣ فئات لفريقك و ٣ فئات للفريق المنافس
+          </p>
           <div className="mt-4 text-lg">
-            <span className="text-white font-bold">{selectedCategories.length}</span>
+            <span className="text-white font-bold">
+              {selectedCategories.length}
+            </span>
             <span className="mx-2 opacity-60">/</span>
             <span className="opacity-60">6</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {categories.map((category) => (
+          {categories.map(category => (
             <button
               key={category.id}
               onClick={() => handleCategorySelect(category.id)}
@@ -92,18 +95,23 @@ const CategorySelect = () => {
                 overflow-hidden group
               `}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* Background image overlay */}
+              {category.image && (
+                <div className="absolute inset-0">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover opacity-50"
+                  />
+                </div>
+              )}
+              {/* Gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50" />
               <div className="relative z-10">
+                {/* If you have an icon property, it will display here */}
                 <div className="text-4xl mb-4">{category.icon}</div>
                 <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                <p className="opacity-80 text-sm mb-4">{category.description}</p>
-                <span className={`
-                  px-3 py-1 rounded-full text-xs font-medium
-                  ${getDifficultyColor(category.difficulty)}
-                `}>
-                  {category.difficulty === 'easy' ? 'سهل' : 
-                   category.difficulty === 'medium' ? 'متوسط' : 'صعب'}
-                </span>
+                <p className="opacity-80 text-sm">{category.description}</p>
               </div>
             </button>
           ))}
@@ -115,9 +123,10 @@ const CategorySelect = () => {
             disabled={selectedCategories.length !== 6}
             className={`
               px-12 py-4 rounded-xl text-xl font-bold transition-all transform
-              ${selectedCategories.length === 6 
-                ? 'bg-white text-primary-700 hover:bg-primary-50 hover:scale-105'
-                : 'bg-white/20 text-white/50 cursor-not-allowed'
+              ${
+                selectedCategories.length === 6
+                  ? 'bg-white text-primary-700 hover:bg-primary-50 hover:scale-105'
+                  : 'bg-white/20 text-white/50 cursor-not-allowed'
               }
             `}
           >
