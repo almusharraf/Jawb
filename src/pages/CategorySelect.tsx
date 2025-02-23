@@ -3,31 +3,40 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useCategories } from '../services/queries/categoryQueries';
 import { getAuthData } from '../services/mutations/auth/storage';
+import { useStartGameMutation, StartGamePayload } from '../services/mutations/game/game';
 
 const CategorySelect = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [authData, setAuthData] = useState<{
+    access: string | null;
+    refresh: string | null;
+    first_name: string | null;
+    email: string | null;
+    userGames?: string | null;
+  } | null>(null);
 
-  // Fetch categories using the useCategories hook
+  // Load auth data on mount
+  useEffect(() => {
+    const storedAuth = getAuthData();
+    setAuthData(storedAuth);
+  }, []);
+
+  // Optional: If you want to redirect immediately when not logged in:
+  useEffect(() => {
+    if (authData !== null && !authData.access) {
+      navigate('/login', { state: { from: '/category-select' }, replace: true });
+    }
+  }, [authData, navigate]);
+
   const { data: categories, isLoading, isError } = useCategories();
 
-  // Check if the user is logged in
-  useEffect(() => {
-    const { access } = getAuthData();
-    if (!access) {
-      // If not logged in, redirect to login page
-      navigate('/login', {
-        state: { from: '/category-select' },
-        replace: true,
-      });
-    }
-  }, [navigate]);
+  const { mutate: startGameMutation } = useStartGameMutation();
 
-  if (isLoading) {
-    return <div>Loading categories...</div>;
+  if (authData === null || isLoading) {
+    return <div>Loading...</div>;
   }
-
   if (isError) {
     return <div>Error loading categories. Please try again later.</div>;
   }
@@ -46,19 +55,40 @@ const CategorySelect = () => {
   };
 
   const handleStartGame = () => {
-    navigate('/auth', {
-      state: {
-        redirectTo: '/game',
-        gameData: {
-          selectedCategories,
-          teams: state?.teams || [],
-          categories: categories.filter(category =>
-            selectedCategories.includes(category.id)
-          ),
+    const payload: StartGamePayload = {
+      categories: selectedCategories.map(id => parseInt(id, 10)),
+      teams: state?.teams || [],
+    };
+  
+    // Log payload for debugging
+    console.log("Starting game with payload:", payload);
+  
+    if (!authData?.access) {
+      navigate('/auth', {
+        state: {
+          redirectTo: '/game',
+          gameData: {
+            selectedCategories,
+            teams: state?.teams || [],
+            categories: categories.filter(category =>
+              selectedCategories.includes(category.id)
+            ),
+          },
         },
-      },
-    });
+      });
+    } else {
+      startGameMutation(payload, {
+        onSuccess: (data) => {
+          navigate('/game', { state: { gameData: data } });
+        },
+        onError: (error: any) => {
+          console.error("Start game error:", error);
+          toast.error('حدث خطأ أثناء بدء اللعبة.');
+        },
+      });
+    }
   };
+  
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-primary-700 relative overflow-hidden">
@@ -95,7 +125,6 @@ const CategorySelect = () => {
                 overflow-hidden group
               `}
             >
-              {/* Background image overlay */}
               {category.image && (
                 <div className="absolute inset-0">
                   <img
@@ -105,10 +134,8 @@ const CategorySelect = () => {
                   />
                 </div>
               )}
-              {/* Gradient overlay for better text readability */}
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50" />
               <div className="relative z-10">
-                {/* If you have an icon property, it will display here */}
                 <div className="text-4xl mb-4">{category.icon}</div>
                 <h3 className="text-xl font-bold mb-2">{category.name}</h3>
                 <p className="opacity-80 text-sm">{category.description}</p>

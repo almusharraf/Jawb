@@ -1,26 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users, ChevronRight } from 'lucide-react';
-import { getAuthData } from '../services/mutations/auth/storage';  // Import getAuthData
+import { getAuthData } from '../services/mutations/auth/storage';
 
 const GameSetup = () => {
   const navigate = useNavigate();
   const [teams, setTeams] = useState(['', '']);
   const [currentStep, setCurrentStep] = useState(1);
 
-  useEffect(() => {
-    // Debug: Log the current login state to console
-    const { access } = getAuthData();
-    console.log("Logged in:", access);  // Add this line to log and check
-
-    if (!access) {
-      // If not logged in, redirect to login page
-      navigate('/auth', { 
-        state: { from: '/game-setup' },
-        replace: true
-      });
-    }
-  }, [navigate]);  // Adding `navigate` as a dependency to avoid React warnings
+  // We no longer redirect immediately if not logged in.
+  // Instead, we allow the user to set up their teams.
+  // When the user clicks "Continue", we check for an access token.
 
   const addTeam = () => {
     if (teams.length < 4) {
@@ -35,21 +25,18 @@ const GameSetup = () => {
   };
 
   const handleContinue = () => {
-    // Debug: Log the current login state to console
     const { access } = getAuthData();
-    console.log("Access token on continue:", access);  // Add this line to check
-
-    // Check if user is logged in before proceeding
+    console.log("Access token on continue:", access);
     if (!access) {
-      navigate('/auth', { replace: true });
-      return; // Don't continue if not logged in
+      // If not logged in, redirect to login with a state that will
+      // bring the user back here after login.
+      navigate('/auth', { state: { from: '/game-setup' }, replace: true });
+      return;
     }
     
-    // Proceed to the category selection page
+    // If logged in, proceed to category selection with team info.
     navigate('/category-select', { 
-      state: { 
-        teams: teams.filter(t => t.trim()) 
-      } 
+      state: { teams: teams.filter(t => t.trim()) } 
     });
   };
 
@@ -59,7 +46,12 @@ const GameSetup = () => {
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-4 mb-12">
           {[1, 2, 3].map((step) => (
-            <div key={step} className={`w-3 h-3 rounded-full ${currentStep === step ? 'bg-purple-400' : 'bg-white/20'}`} />
+            <div
+              key={step}
+              className={`w-3 h-3 rounded-full ${
+                currentStep === step ? 'bg-purple-400' : 'bg-white/20'
+              }`}
+            />
           ))}
         </div>
 
@@ -68,7 +60,10 @@ const GameSetup = () => {
           
           <div className="space-y-4">
             {teams.map((team, index) => (
-              <div key={index} className="group flex items-center bg-white/5 rounded-xl p-3 border border-white/10 hover:border-purple-400/30 transition-all">
+              <div
+                key={index}
+                className="group flex items-center bg-white/5 rounded-xl p-3 border border-white/10 hover:border-purple-400/30 transition-all"
+              >
                 <span className="text-white/60 mr-3">#{index + 1}</span>
                 <input
                   type="text"
@@ -78,8 +73,10 @@ const GameSetup = () => {
                   onChange={(e) => updateTeam(index, e.target.value)}
                 />
                 {teams.length > 2 && (
-                  <button 
-                    onClick={() => setTeams(teams.filter((_, i) => i !== index))}
+                  <button
+                    onClick={() =>
+                      setTeams(teams.filter((_, i) => i !== index))
+                    }
                     className="text-white/40 hover:text-red-400 ml-2"
                   >
                     ✕
@@ -100,7 +97,7 @@ const GameSetup = () => {
           )}
 
           <div className="mt-8 border-t border-white/10 pt-6">
-            <button 
+            <button
               onClick={handleContinue}
               disabled={!teams.every(t => t.trim()) || teams.length < 2}
               className="w-full flex items-center justify-between bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
@@ -111,7 +108,7 @@ const GameSetup = () => {
           </div>
         </div>
 
-        {/* Game Mode Cards - Remove individual play */}
+        {/* Game Mode Cards */}
         <div className="grid grid-cols-1 gap-4 mt-8">
           <div className="bg-gradient-to-br from-white/5 to-white/2 p-4 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all cursor-pointer">
             <Users className="h-6 w-6 text-purple-400 mb-2" />

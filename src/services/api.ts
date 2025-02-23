@@ -1,5 +1,6 @@
 // src/services/api.ts
 import axios from 'axios';
+import { getAuthData } from './mutations/auth/storage';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
@@ -7,5 +8,19 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Add a request interceptor to include the access token if available
+api.interceptors.request.use(
+  (config) => {
+    const { access } = getAuthData();
+    if (access) {
+      config.headers.Authorization = `Bearer ${access}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default api;
