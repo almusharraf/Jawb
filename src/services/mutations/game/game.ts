@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 export interface StartGamePayload {
   categories: number[];
   teams: string[];
+  name: string; // New field for the game name
 }
 
 export interface GameResponse {

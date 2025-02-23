@@ -1,4 +1,3 @@
-// src/pages/CombinedGameSetup.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, ChevronRight } from 'lucide-react';
@@ -17,10 +16,10 @@ const CombinedGameSetup = () => {
   // Teams state: must have 2 to 4 teams.
   const [teams, setTeams] = useState<string[]>(['', '']);
 
-  // New state for game name
+  // New state for game name.
   const [gameName, setGameName] = useState<string>('');
 
-  // For category selection
+  // For category selection.
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const [authData, setAuthData] = useState<{
@@ -37,8 +36,8 @@ const CombinedGameSetup = () => {
     setAuthData(storedAuth);
   }, []);
 
-  // We no longer auto-redirect on mount so that users can fill in info.
-  // Instead, we check for token only when "ابدأ اللعب" is clicked.
+  // Note: We do NOT auto-redirect on mount now so users can fill in their info.
+  // We'll check for the token only when "ابدأ اللعب" is clicked.
 
   const { data: categories, isLoading, isError } = useCategories();
   const { mutate: startGameMutation } = useStartGameMutation();
@@ -57,7 +56,7 @@ const CombinedGameSetup = () => {
   };
 
   const handleTeamsContinue = () => {
-    // Validate team names and game name
+    // Validate team names and game name.
     if (!teams.every((t) => t.trim()) || teams.length < 2) {
       toast.error('يرجى إدخال أسماء جميع المجموعات (على الأقل مجموعتين).');
       return;
@@ -87,11 +86,11 @@ const CombinedGameSetup = () => {
     const payload: StartGamePayload = {
       categories: selectedCategories.map(id => parseInt(id, 10)),
       teams: teams.filter(t => t.trim()),
-      name: gameName, // assuming your backend now accepts a "name" field.
+      name: gameName,
     };
 
     if (!authData?.access) {
-      // If not logged in, redirect to login preserving the current state.
+      // If not logged in, redirect to login preserving current state.
       navigate('/auth', {
         state: {
           redirectTo: '/game',
@@ -229,7 +228,6 @@ const CombinedGameSetup = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50" />
                   <div className="relative z-10">
-                    {/* Fallback for icon if not provided */}
                     <div className="text-4xl mb-4">{category.icon || '📝'}</div>
                     <h3 className="text-xl font-bold mb-2">{category.name}</h3>
                     <p className="opacity-80 text-sm">{category.description}</p>
