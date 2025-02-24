@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Category, Question, UserProgress, Game, Team
 from .serializers import CategorySerializer, QuestionSerializer, GameSerializer
 from django.db.models import Count
+from rest_framework.decorators import api_view
+from django.db import transaction
 
 class CategoryListView(generics.ListAPIView):
     permission_classes = [AllowAny]
@@ -236,3 +238,69 @@ class ListGamesView(APIView):
         serializer = GameSerializer(games, many=True, context={'request': request})
        
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Add this class to your views.py
+class UseAbilityView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @transaction.atomic
+    def post(self, request, game_id, team_id, *args, **kwargs):
+        try:
+            game = Game.objects.get(id=game_id, user=request.user)
+            team = Team.objects.get(id=team_id, game=game)
+            data = request.data
+            
+            ability_type = data.get('ability_type')
+            category_id = data.get('category_id')
+            question_id = data.get('question_id')
+            difficulty = data.get('difficulty')
+
+            if ability_type == 'replace_question':
+                return self.handle_replace_question(game, team, category_id, question_id, difficulty)
+
+            return Response({"detail": "Invalid ability type"}, status=status.HTTP_400_BAD_REQUEST)
+
+        except (Game.DoesNotExist, Team.DoesNotExist):
+            return Response({"detail": "Game or team not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def handle_replace_question(self, game, team, category_id, question_id, difficulty):
+        # Validate input
+        if not all([category_id, question_id, difficulty]):
+            return Response({"detail": "Missing required parameters"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Remove current question from selected
+        progress = game.progress_data
+        key = str(category_id)
+        
+        try:
+            selected_questions = progress[key][difficulty]['selected']
+            selected_questions.remove(question_id)
+        except (KeyError, ValueError):
+            return Response({"detail": "Invalid question reference"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Find replacement question
+        new_question = Question.objects.filter(
+            category_id=category_id,
+            difficulty=difficulty
+        ).exclude(
+            id__in=progress[key][difficulty]['answered']
+        ).exclude(
+            id__in=selected_questions
+        ).order_by('?').first()
+
+        if not new_question:
+            return Response({"detail": "No available replacement questions"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update progress data
+        selected_questions.append(new_question.id)
+        progress[key][difficulty]['selected'] = selected_questions
+        game.progress_data = progress
+        game.save()
+
+        return Response({
+            "new_question_id": new_question.id,
+            "progress_data": progress
+        }, status=status.HTTP_200_OK)

@@ -56,7 +56,7 @@ const Navbar = () => {
             ابدأ اللعب
           </Link>
           <Link 
-            to="/about" 
+            to="/" 
             className="text-white hover:text-gray-200 transition-colors text-lg font-medium"
           >
             عن اللعبة

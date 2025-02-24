@@ -99,11 +99,16 @@ const Game = () => {
     if (localGameData) {
       const abilities: Record<number, TeamAbilities> = {};
       localGameData.teams.forEach((team) => {
-        abilities[team.id] = { callFriend: false, twoAnswers: false, skip: false };
+        abilities[team.id] = { 
+          callFriend: team.call_friend,
+          twoAnswers: team.two_answers,
+          skip: team.skip,
+        };
       });
       setTeamAbilities(abilities);
     }
   }, [localGameData]);
+  
 
   // Timer logic for question modal.
   useEffect(() => {

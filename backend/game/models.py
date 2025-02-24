@@ -43,6 +43,10 @@ class Team(models.Model):
     name = models.CharField(max_length=100)
     score = models.IntegerField(default=0)
     game = models.ForeignKey('Game', on_delete=models.CASCADE, related_name='teams')
+    call_friend = models.BooleanField(default=False)
+    two_answers = models.BooleanField(default=False)
+    skip = models.BooleanField(default=False)
+
 
     def __str__(self):
         return self.name

@@ -1,5 +1,5 @@
-// src/components/CategoriesBoard.tsx
-import React from 'react';
+// src/components/Game/CategoriesBoard.tsx
+import React, { useState } from 'react';
 import { Category } from '../../pages/Game';
 
 interface CategoriesBoardProps {
@@ -21,24 +21,96 @@ interface CategoriesBoardProps {
   isQuestionAnswered: (categoryId: number, difficulty: 'easy' | 'medium' | 'hard', qid: number) => boolean;
 }
 
+interface QuestionButtonProps {
+  category: Category;
+  difficulty: 'easy' | 'medium' | 'hard';
+  qid: number;
+  pointsValue: number;
+  answered: boolean;
+  onClick: () => void;
+}
+
+const QuestionButton: React.FC<QuestionButtonProps> = ({
+  category,
+  difficulty,
+  qid,
+  pointsValue,
+  answered,
+  onClick,
+}) => {
+  const [flipped, setFlipped] = useState(false);
+
+  const handleClick = () => {
+    if (answered) return;
+    setFlipped(true);
+    setTimeout(() => {
+      onClick();
+    }, 500);
+  };
+
+  const bgClass = answered
+    ? 'bg-gray-400'
+    : difficulty === 'easy'
+    ? 'bg-green-400'
+    : difficulty === 'medium'
+    ? 'bg-yellow-400'
+    : 'bg-red-400';
+
+  return (
+    <div style={{ perspective: '1000px' }} className="w-full h-full">
+      <button
+        onClick={handleClick}
+        disabled={answered}
+        className={`w-full h-full transition-transform transform active:scale-95 relative focus:outline-none ${bgClass}`}
+        style={{
+          transition: 'transform 0.5s',
+          transformStyle: 'preserve-3d',
+          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)',
+        }}
+      >
+        <div
+          className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          {pointsValue}
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+          }}
+        />
+      </button>
+    </div>
+  );
+};
+
 const CategoriesBoard: React.FC<CategoriesBoardProps> = ({
   categories,
   progressData,
   onQuestionClick,
   isQuestionAnswered,
 }) => {
+  const gridCols = categories.length / 2;
+
   return (
-    <section className="p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {categories.map((category) => {
-          const catProgress = progressData[String(category.id)];
-          return (
+    <div
+      style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
+      className="grid gap-0.5 p-2 w-full h-full" // Reduced gap and padding
+    >
+      {categories.map((category) => {
+        const catProgress = progressData[String(category.id)];
+        return (
+          <div key={category.id} className="w-full p-1"> {/* Added padding */}
             <div
-              key={category.id}
-              className="flex flex-col rounded-xl shadow-lg border border-white/20 bg-white/10 backdrop-blur-sm"
+              className="shadow rounded-lg overflow-hidden flex flex-col mx-auto bg-transparent" // Removed background
+              style={{ 
+                height: '12rem', // Increased height by 10%
+                width: '90%' // Increased width
+              }}
             >
-              {/* Compact Header */}
-              <div className="relative h-28">
+              <div className="relative" style={{ height: '60%' }}>
                 {category.image && (
                   <img
                     src={category.image}
@@ -46,63 +118,48 @@ const CategoriesBoard: React.FC<CategoriesBoardProps> = ({
                     className="w-full h-full object-cover"
                   />
                 )}
-                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-2">
-                  <h3 className="text-lg font-bold text-white text-center line-clamp-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-xs text-white/80 text-center line-clamp-2 mt-1">
-                    {category.description}
-                  </p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black opacity-60" />
+                <div className="absolute bottom-2 left-2 text-white">
+                  <h3 className="text-xl font-semibold">{category.name}</h3>
                 </div>
               </div>
-
-              {/* Questions Grid */}
-              <div className="p-3 space-y-3">
-                {(['easy', 'medium', 'hard'] as const).map((difficulty) => {
-                  const pointsValue =
-                    difficulty === 'easy' ? 300 : difficulty === 'medium' ? 500 : 700;
-                  const selectedForDiff = catProgress?.[difficulty]?.selected || [];
-
-                  return (
-                    <div key={difficulty} className="space-y-1.5">
-                      <div className="text-xs font-semibold text-white/80 ml-2">
-                        {difficulty.toUpperCase()}
-                      </div>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {selectedForDiff.map((qid) => {
-                          const answered = isQuestionAnswered(category.id, difficulty, qid);
+              <div className="flex-1">
+                <div className="grid grid-cols-3 h-full">
+                  {(['easy', 'medium', 'hard'] as const).map((diff) => {
+                    const questions = catProgress?.[diff]?.selected || [];
+                    return (
+                      <div
+                        key={diff}
+                        className="flex flex-col h-full border-2 border-gray-800" // Darker border
+                      >
+                        {questions.map((qid) => {
+                          const pointsValue =
+                            diff === 'easy' ? 300 :
+                            diff === 'medium' ? 500 : 700;
+                          const answered = isQuestionAnswered(category.id, diff, qid);
                           return (
-                            <button
-                              key={qid}
-                              onClick={() => !answered && onQuestionClick(category, pointsValue, qid, difficulty)}
-                              disabled={answered}
-                              className={`
-                                aspect-square flex items-center justify-center 
-                                text-sm font-bold transition-colors
-                                ${answered 
-                                  ? 'bg-gray-600/30 cursor-not-allowed' 
-                                  : difficulty === 'easy' 
-                                    ? 'bg-green-500/90 hover:bg-green-400' 
-                                    : difficulty === 'medium' 
-                                      ? 'bg-yellow-500/90 hover:bg-yellow-400' 
-                                      : 'bg-red-500/90 hover:bg-red-400'}
-                                rounded-md
-                              `}
-                            >
-                              {pointsValue}
-                            </button>
+                            <div key={qid} className="flex-1 border-b-2 border-gray-800">
+                              <QuestionButton
+                                category={category}
+                                difficulty={diff}
+                                qid={qid}
+                                pointsValue={pointsValue}
+                                answered={answered}
+                                onClick={() => onQuestionClick(category, pointsValue, qid, diff)}
+                              />
+                            </div>
                           );
                         })}
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-    </section>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

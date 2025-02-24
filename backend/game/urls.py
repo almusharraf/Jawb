@@ -7,6 +7,7 @@ from .views import (
     ResumeGameView,
     UpdateGameProgressView,
     ListGamesView,  # new view
+    UseAbilityView,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('resume-game/', ResumeGameView.as_view(), name='resume-game'),
     path('update-game-progress/', UpdateGameProgressView.as_view(), name='update-game-progress'),
     path('list/', ListGamesView.as_view(), name='game-list'),
+    path('games/<int:game_id>/teams/<int:team_id>/use-ability/', UseAbilityView.as_view(), name='use-ability'),
 ]

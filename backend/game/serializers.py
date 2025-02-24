@@ -22,7 +22,7 @@ class UserProgressSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ['id', 'name', 'score']
+        fields = ['id', 'name', 'score', 'call_friend', 'two_answers', 'skip']
 
 class GameSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
