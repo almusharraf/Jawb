@@ -5,219 +5,158 @@ import { Users, Sparkles, Trophy, Brain, Target, Crown } from 'lucide-react';
 const Home = () => {
   const navigate = useNavigate();
 
+  const steps = [
+    {
+      step: 1,
+      title: 'تشكيل الفرق',
+      desc: 'قم بتشكيل بين 2 إلى 4 فرق وسمِّ كل فريق بطريقة مبتكرة.',
+    },
+    {
+      step: 2,
+      title: 'اختيار الفئات',
+      desc: 'إذا كان اللعب بفريقين، يختار كل فريق 3 فئات. أما إذا كان اللعب بثلاثة أو أربعة فرق، يختار كل فريق فئتين.',
+    },
+    {
+      step: 3,
+      title: 'اختيار الأسئلة',
+      desc: 'اختر مستوى الصعوبة المناسب (300/500/700 نقطة) وابدأ التحدي.',
+    },
+    {
+      step: 4,
+      title: 'الإجابة والتحدي',
+      desc: 'لكل سؤال، تكون لدى الفريق الذي يبدأ دقيقة للإجابة، ثم تحصل الفرق المنافسة على فرصة للإجابة: 30 ثانية لكل فريق. في حالة وجود 3 فرق، يُعطى الفريق الأول دقيقة تامة، وتُمنح الفرق اللاحقة 15 ثانية لكل منها.',
+    },
+  ];
+
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 overflow-hidden">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Game Title */}
-          <div className="text-center mb-16">
-            <Crown className="h-24 w-24 mx-auto mb-8 text-purple-400" />
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 to-blue-300 bg-clip-text text-transparent mb-6">
-              جاوب
-            </h1>
-            <p className="text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-              لعبة ثقافية تنافسية عن المملكة العربية السعودية
-            </p>
-            <button 
-              onClick={() => navigate('/combined-game-setup')}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-12 py-5 rounded-2xl text-lg font-bold hover:scale-105 transition-transform"
-            >
-              ابدأ اللعب
-            </button>
-          </div>
-
-          {/* Game Rules */}
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-white text-center mb-12">قوانين اللعبة</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">نظام اللعب</h3>
-                <ul className="space-y-4 text-white/80">
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Users className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>فريقان يتنافسان في الإجابة على الأسئلة</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Target className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>كل فريق يختار 3 فئات من الأسئلة</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Brain className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>الأسئلة متدرجة الصعوبة: 100، 300، 500 نقطة</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">نظام النقاط</h3>
-                <ul className="space-y-4 text-white/80">
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Sparkles className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>إجابة صحيحة: +100/300/500 نقطة حسب الصعوبة</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Trophy className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>إجابة سريعة: +20% نقاط إضافية</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="bg-purple-500/20 p-2 rounded-lg">
-                      <Target className="w-5 h-5 text-purple-400" />
-                    </span>
-                    <span>إجابة خاطئة: -50% من نقاط السؤال</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* How to Play */}
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-white text-center mb-12">خطوات اللعب</h2>
-            <div className="max-w-3xl mx-auto">
-              <div className="space-y-6">
-                {[
-                  {
-                    step: 1,
-                    title: 'تشكيل الفرق',
-                    desc: 'قم بتشكيل فريقين وتسمية كل فريق'
-                  },
-                  {
-                    step: 2,
-                    title: 'اختيار الفئات',
-                    desc: 'كل فريق يختار 3 فئات من الأسئلة المتاحة'
-                  },
-                  {
-                    step: 3,
-                    title: 'اختيار الأسئلة',
-                    desc: 'اختر مستوى صعوبة السؤال (100/300/500 نقطة)'
-                  },
-                  {
-                    step: 4,
-                    title: 'الإجابة والنقاط',
-                    desc: 'أجب بسرعة للحصول على نقاط إضافية'
-                  }
-                ].map((item) => (
-                  <div 
-                    key={item.step}
-                    className="flex items-center gap-6 bg-white/5 p-6 rounded-2xl border border-white/10"
-                  >
-                    <span className="text-4xl font-bold text-purple-400">
-                      {item.step}
-                    </span>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-1">
-                        {item.title}
-                      </h3>
-                      <p className="text-white/70">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Start Game CTA */}
-          <div className="text-center">
-            <button 
-              onClick={() => navigate('/combined-game-setup')}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-16 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform"
-            >
-              ابدأ اللعب الآن
-            </button>
-          </div>
-        </div>
+    <div className="relative min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 overflow-hidden">
+      {/* Animated Blob Background Elements */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-purple-500 rounded-full filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-20 right-0 w-64 h-64 bg-pink-500 rounded-full filter blur-3xl opacity-30 animate-delay-2000"></div>
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-30 animate-delay-4000"></div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900/50 backdrop-blur-sm border-t border-white/10 py-12 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* Game Info */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Crown className="h-6 w-6 text-purple-400" />
-                <span className="text-xl font-bold text-white">جاوب</span>
-              </div>
-              <p className="text-white/60 text-sm leading-relaxed">
-                لعبة ثقافية تنافسية تختبر معرفتك بالمملكة العربية السعودية. تم تطوير اللعبة لتعزيز المعرفة بتاريخ وثقافة المملكة بطريقة تفاعلية وممتعة.
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12 space-y-16">
+        {/* Hero Section */}
+        <section className="text-center">
+          <Crown className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 text-yellow-400 animate-bounce" />
+          <h1 className="text-6xl md:text-8xl font-extrabold bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent">
+            جاوب
+          </h1>
+          <p className="mt-4 text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed">
+            لعبة ثقافية تنافسية تختبر معلوماتك ومهاراتك بطريقة تفاعلية وممتعة.
+          </p>
+          <button
+            onClick={() => navigate('/combined-game-setup')}
+            className="mt-8 bg-gradient-to-r from-red-500 to-yellow-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-lg transform hover:scale-110 transition-transform duration-300"
+          >
+            ابدأ اللعب الآن
+          </button>
+        </section>
+
+        {/* Game Rules Section */}
+        <section className="w-full max-w-6xl text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">قوانين اللعبة</h2>
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Users className="w-10 h-10 text-yellow-400" />
+              <p className="text-lg md:text-xl">
+                يتنافس بين <span className="font-semibold">2 إلى 4 فرق</span>
               </p>
             </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-white font-bold mb-4">روابط سريعة</h3>
-              <ul className="space-y-2">
-                <li>
-                  <button 
-                    onClick={() => navigate('/combined-game-setup')}
-                    className="text-white/60 hover:text-white transition-colors"
-                  >
-                    ابدأ اللعب
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/about')}
-                    className="text-white/60 hover:text-white transition-colors"
-                  >
-                    عن اللعبة
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/contact')}
-                    className="text-white/60 hover:text-white transition-colors"
-                  >
-                    تواصل معنا
-                  </button>
-                </li>
-              </ul>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Target className="w-10 h-10 text-yellow-400" />
+              <p className="text-lg md:text-xl">
+                {`اختيار الفئات: إذا كان اللعب بفريقين، يختار كل فريق 3 فئات؛ وإذا كان اللعب بثلاثة أو أربعة فرق، يختار كل فريق فئتين.`}
+              </p>
             </div>
-
-            {/* Game Categories */}
-            <div>
-              <h3 className="text-white font-bold mb-4">فئات الأسئلة</h3>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'الأكلات الشعبية',
-                  'المعالم والمدن',
-                  'التاريخ السعودي',
-                  'الثقافة السعودية',
-                  'الرياضة',
-                  'الفنون'
-                ].map((category) => (
-                  <span 
-                    key={category}
-                    className="bg-white/5 text-white/60 text-sm px-3 py-1 rounded-full"
-                  >
-                    {category}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Brain className="w-10 h-10 text-yellow-400" />
+              <p className="text-lg md:text-xl">
+                أسئلة متدرجة الصعوبة: <span className="font-semibold">300، 500، 700 نقطة</span>
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Sparkles className="w-10 h-10 text-yellow-400" />
+              <p className="text-lg md:text-xl">
+                لكل سؤال: الفريق المختار يبدأ بدقيقة للإجابة، ثم تُمنح الفرص للفرق المنافسة لمدة 30 ثانية لكل منها. في حال اللعب بثلاث فرق، يُمنح الفريق الأول دقيقة تامة، والفرص للفرق الأخرى تكون 15 ثانية لكل منها.
+              </p>
             </div>
           </div>
+          <div className="mt-12 border-t border-white/30"></div>
+        </section>
 
-          {/* Copyright */}
-          <div className="border-t border-white/10 mt-12 pt-8 text-center">
-            <p className="text-white/40 text-sm">
-              جميع الحقوق محفوظة © {new Date().getFullYear()} جاوب
-            </p>
+        {/* How to Play Section with Timeline Roadmap */}
+        <section className="w-full max-w-6xl text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">خطوات اللعب</h2>
+          <div className="relative">
+            {/* Vertical timeline line */}
+            <div className="absolute left-6 md:left-1/2 transform md:-translate-x-1/2 h-full border-l-2 border-white/30"></div>
+            <div className="space-y-12">
+              {steps.map((item, index) => (
+                <div
+                  key={index}
+                  className={`flex flex-col md:flex-row items-center ${
+                    index % 2 === 0 ? 'md:justify-start' : 'md:justify-end'
+                  } relative`}
+                >
+                  {/* Timeline content */}
+                  <div className="md:w-1/2 p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
+                    <p className="text-lg">{item.desc}</p>
+                  </div>
+                  {/* Timeline marker */}
+                  <div className="absolute left-6 md:left-1/2 transform md:-translate-x-1/2 bg-yellow-400 rounded-full border-4 border-white w-8 h-8 flex items-center justify-center font-bold text-indigo-900">
+                    {item.step}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
+          <div className="mt-12 border-t border-white/30"></div>
+        </section>
+
+        {/* Why Play With Us Section */}
+        <section className="w-full max-w-6xl text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">لماذا تلعب معنا؟</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center space-y-4 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+              <Trophy className="w-12 h-12 text-yellow-400" />
+              <h3 className="text-2xl font-bold">تحدي مستمر</h3>
+              <p className="text-lg">
+                اختبر معلوماتك في بيئة تنافسية تجمع بين المتعة والإثارة.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+              <Sparkles className="w-12 h-12 text-yellow-400" />
+              <h3 className="text-2xl font-bold">تفاعل اجتماعي</h3>
+              <p className="text-lg">
+                العب مع أصدقائك واستمتعوا بتجربة تفاعلية فريدة.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+              <Brain className="w-12 h-12 text-yellow-400" />
+              <h3 className="text-2xl font-bold">تعليم وترفيه</h3>
+              <p className="text-lg">
+                تعلم واختبر معلوماتك من خلال تحديات مبتكرة ومسلية.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Final Call-to-Action */}
+        <section className="text-center">
+          <button
+            onClick={() => navigate('/combined-game-setup')}
+            className="bg-gradient-to-r from-red-500 to-yellow-500 text-white px-12 md:px-16 py-5 md:py-6 rounded-full text-2xl font-bold shadow-xl hover:scale-110 transition-transform duration-300"
+          >
+            ابدأ اللعب الآن
+          </button>
+        </section>
+      </div>
     </div>
   );
 };
 
-export default Home; 
+export default Home;
